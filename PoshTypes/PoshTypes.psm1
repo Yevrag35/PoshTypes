@@ -31,7 +31,6 @@ public abstract class BaseObject
                 }
             }
         }
-        _backingField = obj;
     }
 }
 
@@ -74,6 +73,25 @@ public class PoshMethod : BaseObject
     private PoshMethod(MethodInfo mi)
     {
         base.SetProperties(mi);
+        base._backingField = mi;
+    }
+
+    public PoshMethodParameter[] GetParameters()
+    {
+        var prms = ((MethodInfo)_backingField).GetParameters();
+        if (prms.Length > 0)
+        {
+            var newArr = new PoshMethodParameter[prms.Length];
+            for (int i = 0; i < prms.Length; i++)
+            {
+                newArr[i] = prms[i];
+            }
+            return newArr;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public static implicit operator PoshMethod(MethodInfo mi)
@@ -107,6 +125,7 @@ public class PoshMethodParameter : BaseObject
     private PoshMethodParameter(ParameterInfo pi)
     {
         base.SetProperties(pi);
+        base._backingField = pi;
     }
 
     public static implicit operator PoshMethodParameter(ParameterInfo pi)
@@ -124,7 +143,8 @@ Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", 
 Function Get-Type()
 {
 	[CmdletBinding(DefaultParameterSetName='None', PositionalBinding=$false)]
-	[Alias("gt")]
+    [Alias("gt")]
+    [OutputType([type])]
 	param
 	(
 		[parameter(Mandatory, Position = 0, ValueFromPipeline)]
@@ -174,14 +194,52 @@ Function Get-Type()
 	}
 }
 
-Function Get-Parameter()
+Function Get-Method()
 {
-    [CmdletBinding(PositionalBinding = $false)]
-    [Alias("gpm", "pm")]
+    [CmdletBinding(PositionalBinding=$false, DefaultParameterSetName='ByPipelineType')]
+    [Alias("gmt")]
+    [OutputType([PoshMethod])]
     param
     (
-        [parameter(Mandatory, ValueFromPipeline)]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByPipelineType')]
+        [type] $InputObject,
+
+        [parameter(Mandatory, ParameterSetName="ByTypeName")]
+        [string] $TypeName,
+
+        [parameter(Mandatory, Position = 0)]
+        [string[]] $Name
+    )
+    Begin
+    {
+        $list = New-Object System.Collections.Generic.List[type];
+    }
+    Process
+    {
+        if ($PSBoundParameters.ContainsKey("InputObject"))
+        {
+            $list.Add($InputObject)
+        }
+        else
+        {
+            $list.Add(([type]@(Resolve-Type -TypeName $TypeName)));
+        }
+    }
+}
+
+
+Function Get-Parameter()
+{
+    [CmdletBinding(PositionalBinding = $false, DefaultParameterSetName='ByRealMethod')]
+    [Alias("gpm", "pm")]
+    [OutputType([PoshMethodParameter])]
+    param
+    (
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByRealMethod')]
         [System.Reflection.MethodInfo] $Method,
+
+        # [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByMyMethod')]
+        # [PoshMethod] $PoshMethod,
 
         [parameter(Mandatory=$false, Position = 0)]
         [string[]] $Name
@@ -193,7 +251,7 @@ Function Get-Parameter()
         {
             $eaArgs.ErrorAction = $PSBoundParameters["ErrorAction"];
         }
-        $list = New-Object 'System.Collections.Generic.List[System.Reflection.ParameterInfo]'
+        $list = New-Object 'System.Collections.Generic.List[PoshMethodParameter]'
         # [string[]]$enums = foreach($e in $Flags)
         # {
         #     $e.ToString()
@@ -202,16 +260,19 @@ Function Get-Parameter()
     }
     Process
     {
-        $allParams = $Method.GetParameters();
+        [System.Reflection.ParameterInfo[]]$allParams = $Method.GetParameters();
         if ($PSBoundParameters.ContainsKey("Name"))
         {
-            $allParams = $allParams | Where-Object { $_.Name -in $Name };
+            [System.Reflection.ParameterInfo[]]$allParams = $allParams | Where-Object { $_.Name -in $Name };
         }
-        $list.AddRange([System.Reflection.ParameterInfo[]]@($allParams));
+        for ($i = 0; $i -lt $allParams.Length; $i++)
+        {
+            $list.Add([PoshMethodParameter]$allParams[$i]);
+        }
     }
     End
     {
-
+        Write-Output $list;
     }
 }
 
