@@ -142,52 +142,88 @@ Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", 
 
 Function Get-Type()
 {
-	[CmdletBinding(DefaultParameterSetName='None', PositionalBinding=$false)]
+	[CmdletBinding(DefaultParameterSetName='GetTypeFromName', PositionalBinding=$false)]
     [Alias("gt")]
     [OutputType([type])]
 	param
 	(
-		[parameter(Mandatory, Position = 0, ValueFromPipeline)]
-		[object] $InputObject,
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='GetTypeFromPipeline')]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='GetFullNameFromPipeline')]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='GetPropertiesFromPipeline')]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='GetMethodsFromPipeline')]
+        [object] $InputObject,
+        
+        [parameter(Mandatory, Position = 0, ParameterSetName='GetTypeFromName')]
+        [parameter(Mandatory, Position = 0, ParameterSetName='GetFullNameFromName')]
+        [parameter(Mandatory, Position = 0, ParameterSetName='GetPropertiesFromName')]
+        [parameter(Mandatory, Position = 0, ParameterSetName='GetMethodsFromName')]
+        [string[]] $TypeName,
 		
-		[parameter(Mandatory, ParameterSetName='GetFullName')]
+        [parameter(Mandatory, ParameterSetName='GetFullNameFromPipeline')]
+        [parameter(Mandatory, ParameterSetName='GetFullNameFromName')]
 		[alias("f")]
         [switch] $FullName,
         
-        [parameter(Mandatory, ParameterSetName='GetProperties')]
+        [parameter(Mandatory, ParameterSetName='GetPropertiesFromPipeline')]
+        [parameter(Mandatory, ParameterSetName='GetPropertiesFromName')]
         [alias('p')]
         [switch] $Properties,
 
-        [parameter(Mandatory, ParameterSetName='GetMethods')]
+        [parameter(Mandatory, ParameterSetName='GetMethodsFromPipeline')]
+        [parameter(Mandatory, ParameterSetName='GetMethodsFromName')]
         [alias('m')]
         [switch] $Methods,
 
-        [parameter(Mandatory=$false, ParameterSetName='GetProperties', DontShow)]
-        [parameter(Mandatory=$false, ParameterSetName='GetMethods', DontShow)]
+        [parameter(Mandatory=$false, ParameterSetName='GetPropertiesFromPipeline', DontShow)]
+        [parameter(Mandatory=$false, ParameterSetName='GetPropertiesFromName', DontShow)]
+        [parameter(Mandatory=$false, ParameterSetName='GetMethodsFromPipeline', DontShow)]
+        [parameter(Mandatory=$false, ParameterSetName='GetMethodsFromName', DontShow)]
         [switch] $Force
 	)
 	Process
 	{
-        $type = $InputObject.GetType();
+        if ($PSBoundParameters.ContainsKey("InputObject"))
+        {
+            $ts = @($InputObject.GetType());
+        }
+        else
+        {
+            [type[]]$ts = Resolve-Type -TypeName $TypeName;
+        }
         $gmArgs = @{ Force = $Force.ToBool() }
 
-        switch ($PSCmdlet.ParameterSetName)
+        foreach ($type in $ts)
         {
-            "GetFullName"
+            switch ($PSCmdlet.ParameterSetName)
             {
-                $return = $type.FullName;
-            }
-            "GetProperties"
-            {
-                $return = Get-Member -InputObject $InputObject -MemberType Properties @gmArgs;
-            }
-            "GetMethods"
-            {
-                $return = Get-Member -InputObject $InputObject -MemberType Methods @gmArgs;
-            }
-            default
-            {
-                $return = $type;
+                "GetFullNameFromPipeline"
+                {
+                    $return = $type.FullName;
+                }
+                "GetFullNameFromName"
+                {
+                    $return = $type.FullName;
+                }
+                "GetPropertiesFromPipeline"
+                {
+                    $return = Get-Member -InputObject $InputObject -MemberType Properties @gmArgs;
+                }
+                "GetPropertiesFromName"
+                {
+                    $return = Get-Member -InputObject $InputObject -MemberType Properties @gmArgs;
+                }
+                "GetMethodsFromPipeline"
+                {
+                    $return = Get-Member -InputObject $InputObject -MemberType Methods @gmArgs;
+                }
+                "GetMethodsFromName"
+                {
+                    $return = Get-Member -InputObject $InputObject -MemberType Methods @gmArgs;
+                }
+                default
+                {
+                    $return = $type;
+                }
             }
         }
         Write-Output -InputObject $return;
