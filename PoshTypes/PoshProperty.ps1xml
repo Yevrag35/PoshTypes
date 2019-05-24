@@ -1,54 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Configuration>
+    <SelectionSets>
+        <SelectionSet>
+            <Name>PoshPropTable</Name>
+            <Types>
+                <TypeName>PoshProperty</TypeName>
+            </Types>
+        </SelectionSet>
+    </SelectionSets>
     <ViewDefinitions>
         <View>
-            <Name>PoshMethod</Name>
+            <Name>PropertyList</Name>
             <ViewSelectedBy>
-                <TypeName>PoshMethod</TypeName>
+                <TypeName>PoshProperty</TypeName>
             </ViewSelectedBy>
             <ListControl>
                 <ListEntries>
                     <ListEntry>
                         <ListItems>
                             <ListItem>
-                                <Label>Definition</Label>
-                                <ScriptBlock>
-                                    $prms = $_.GetParameters();
-                                    if ($prms.Length -gt 0) 
-                                    {
-                                        $strs = @();
-                                        foreach ($p in $prms)
-                                        {
-                                            $strs += "{0} {1}" -f $p.ParameterType.FullName, $p.Name;
-                                        }
-                                        if ($strs.Count -gt 0)
-                                        {
-                                            $strs = $strs -join ', ';
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $strs = [string]::Empty;
-                                    }
-                                    "{0} {1}({2})" -f $_.ReturnType.FullName, $_.Name, $strs;
-                                </ScriptBlock>
+                                <PropertyName>CanRead</PropertyName>
                             </ListItem>
                             <ListItem>
-                                <Label>IsGeneric</Label>
-                                <PropertyName>IsGenericMethod</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>IsPublic</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>IsStatic</PropertyName>
+                                <PropertyName>CanWrite</PropertyName>
                             </ListItem>
                             <ListItem>
                                 <PropertyName>Name</PropertyName>
                             </ListItem>
                             <ListItem>
-                                <Label>Returns</Label>
-                                <PropertyName>ReturnType</PropertyName>
+                                <Label>Type</Label>
+                                <PropertyName>PropertyType</PropertyName>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeDeclared</Label>
@@ -62,10 +43,24 @@
                     </ListEntry>
                 </ListEntries>
             </ListControl>
-            <!-- <TableControl>
+        </View>
+        <!-- <View>
+            <Name>PropertyTable</Name>
+            <ViewSelectedBy>
+                <SelectionSetName>PoshPropTable</SelectionSetName>
+            </ViewSelectedBy>
+            <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
-                        <Label>Method</Label>
+                        <Label>DeclaringType</Label>
+                        <Alignment>Left</Alignment>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>ReflectedType</Label>
+                        <Alignment>Left</Alignment>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Name</Label>
                         <Alignment>Left</Alignment>
                     </TableColumnHeader>
                     <TableColumnHeader>
@@ -73,18 +68,11 @@
                         <Alignment>Left</Alignment>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Label>Returns</Label>
+                        <Label>get;</Label>
                         <Alignment>Left</Alignment>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Alignment>Left</Alignment>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>IsGeneric</Label>
-                        <Alignment>Left</Alignment>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Label>HasParameters</Label>
+                        <Label>set;</Label>
                         <Alignment>Left</Alignment>
                     </TableColumnHeader>
                 </TableHeaders>
@@ -92,27 +80,27 @@
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
+                                <ScriptBlock>$_.DeclaringType.Name</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>$_.ReflectedType.Name</ScriptBlock>
+                            </TableColumnItem>
+                            <TableColumnItem>
                                 <PropertyName>Name</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>DeclaringType</PropertyName>
+                                <PropertyName>CanRead</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>ReturnType</PropertyName>
+                                <PropertyName>CanWrite</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>IsStatic</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>IsGenericMethod</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <ScriptBlock>$_.GetParameters().Length -gt 0</ScriptBlock>
+                                <PropertyName>PropertyType</PropertyName>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>
                 </TableRowEntries>
-            </TableControl> -->
-        </View>
+            </TableControl>
+        </View> -->
     </ViewDefinitions>
 </Configuration>

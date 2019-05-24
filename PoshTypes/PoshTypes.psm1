@@ -137,6 +137,49 @@ public class PoshMethodParameter : BaseObject
         return (ParameterInfo)pmp._backingField;
     }
 }
+
+public class PoshProperty : BaseObject
+{
+    public PropertyAttributes Attributes { get; private set; }
+    public bool CanRead { get; private set; }
+    public bool CanWrite { get; private set; }
+    public IEnumerable<CustomAttributeData> CustomAttributes { get; private set; }
+    public Type DeclaringType { get; private set; }
+    public MethodInfo GetMethod { get; private set; }
+    public bool IsSpecialName { get; private set; }
+    public MemberTypes MemberType { get; private set; }
+    public int MetadataToken { get; private set; }
+    public Module Module { get; private set; }
+    public string Name { get; private set; }
+    public Type PropertyType { get; private set; }
+    public Type ReflectedType { get; private set; }
+    public MethodInfo SetMethod { get; private set; }
+
+    private PoshProperty(PropertyInfo pi)
+    {
+        base.SetProperties(pi);
+        _backingField = pi;
+    }
+
+    public MethodInfo[] GetAccessors()
+    {
+        return ((PropertyInfo)_backingField).GetAccessors();
+    }
+
+    public MethodInfo[] GetAccessors(bool nonPublic)
+    {
+        return ((PropertyInfo)_backingField).GetAccessors(nonPublic);
+    }
+
+    public static implicit operator PoshProperty(PropertyInfo pi)
+    {
+        return new PoshProperty(pi);
+    }
+    public static implicit operator PropertyInfo(PoshProperty pp)
+    {
+        return (PropertyInfo)pp._backingField;
+    }
+}
 '@
 Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", "System.Collections", "System.Linq", "System.Reflection";
 
@@ -165,19 +208,15 @@ Function Get-Type()
         [switch] $FullName,
         
         [parameter(Mandatory, ParameterSetName='GetPropertiesFromPipeline')]
-        [parameter(Mandatory, ParameterSetName='GetPropertiesFromName')]
         [alias('p')]
         [switch] $Properties,
 
         [parameter(Mandatory, ParameterSetName='GetMethodsFromPipeline')]
-        [parameter(Mandatory, ParameterSetName='GetMethodsFromName')]
         [alias('m')]
         [switch] $Methods,
 
         [parameter(Mandatory=$false, ParameterSetName='GetPropertiesFromPipeline', DontShow)]
-        [parameter(Mandatory=$false, ParameterSetName='GetPropertiesFromName', DontShow)]
         [parameter(Mandatory=$false, ParameterSetName='GetMethodsFromPipeline', DontShow)]
-        [parameter(Mandatory=$false, ParameterSetName='GetMethodsFromName', DontShow)]
         [switch] $Force
 	)
 	Process
@@ -255,12 +294,7 @@ Function Get-Method()
     Begin
     {
         $list = New-Object System.Collections.Generic.List[type];
-        [string[]]$strFlags = @();
-        foreach ($e in $Flags)
-        {
-            $strFlags += $e.ToString();
-        }
-        [System.Reflection.BindingFlags]$realFlags = [enum]::Parse(([System.Reflection.BindingFlags]), ($strFlags -join ','), $true);
+        $realFlags = Join-Enum -Flags $Flags;
     }
     Process
     {
@@ -299,6 +333,61 @@ Function Get-Method()
     }
 }
 
+Function Get-Property()
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    [Alias("getprop", "gpt")]
+    [OutputType([PoshProperty])]
+    param
+    (
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByPipelineType')]
+        [type] $InputObject,
+
+        [parameter(Mandatory, ParameterSetName='ByTypeName')]
+        [string] $TypeName,
+
+        [parameter(Mandatory = $false, Position = 0)]
+        [string[]] $Name,
+
+        [parameter(Mandatory = $false)]
+        [System.Reflection.BindingFlags[]] $Flags = @([System.Reflection.BindingFlags]::Public, [System.Reflection.BindingFlags]::Instance)
+    )
+    Begin
+    {
+        $list = New-Object System.Collections.Generic.List[type];
+        $realFlags = Join-Enum -Flags $Flags;
+    }
+    Process
+    {
+        if ($PSBoundParameters.ContainsKey("InputObject"))
+        {
+            $list.Add($InputObject);
+        }
+        else
+        {
+            $list.Add((Resolve-Type -TypeName $TypeName));
+        }
+    }
+    End
+    {
+        $outList = New-Object System.Collections.Generic.List[PoshProperty];
+        for ($i = 0; $i -lt $list.Count; $i++)
+        {
+            $t = $list[$i];
+            [System.Reflection.PropertyInfo[]]$allProps = $t.GetProperties($realFlags);
+            if ($PSBoundParameters.ContainsKey("Name"))
+            {
+                $script = { $_.Name -in $Name }
+                [System.Reflection.PropertyInfo[]]$allProps = $allProps | Where-Object $script;
+            }
+            foreach ($prop in $allProps)
+            {
+                $outList.Add($prop);
+            }
+        }
+        Write-Output $outList;
+    }
+}
 
 Function Get-Parameter()
 {
@@ -348,10 +437,11 @@ Function Get-Parameter()
     }
 }
 
+#region BACKEND FUNCTIONS
+
 Function Resolve-Type()
 {
     [CmdletBinding()]
-    [Alias("rt")]
     [OutputType([type])]
     param
     (
@@ -395,4 +485,32 @@ Function Resolve-Type()
     }
 }
 
-Export-ModuleMember -Function "Get-Method", "Get-Type", "Get-Parameter" -Alias "gmt", "gt", "gpm", "pm"
+Function Join-Enum([System.Reflection.BindingFlags[]]$Flags)
+{
+    [string[]]$strFlags = @();
+    foreach ($e in $Flags)
+    {
+        $strFlags += $e.ToString();
+    }
+    Write-Output -InputObject $([enum]::Parse(([System.Reflection.BindingFlags]), ($strFlags -join ','), $true));
+}
+
+#endregion
+
+$export = @{
+    Function = @(
+        "Get-Method",
+        "Get-Parameter",
+        "Get-Property",
+        "Get-Type"
+    )
+    Alias = @(
+        "gmt",
+        "gpm",
+        "gpt",
+        "gt",
+        "pm"
+    )
+};
+
+Export-ModuleMember @export;

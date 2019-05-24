@@ -73,13 +73,18 @@ RequiredAssemblies = @(
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = @('PoshMethod.ps1xml', 'PoshMethodParameter.ps1xml')
+FormatsToProcess = @('PoshMethod.ps1xml', 'PoshMethodParameter.ps1xml', 'PoshProperty.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @('PoshTypes.psm1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Get-Method', 'Get-Type', 'Get-Parameter'
+FunctionsToExport = @(
+    "Get-Method",
+    "Get-Parameter",
+    "Get-Property",
+    "Get-Type"
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'
@@ -89,7 +94,11 @@ VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @(
-    "gmt", "gt", "gpm", "pm"
+    "gmt",
+    "gpm",
+    "gpt",
+    "gt",
+    "pm"
 )
 
 # DSC resources to export from this module
