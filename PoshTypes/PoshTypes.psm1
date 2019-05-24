@@ -223,7 +223,14 @@ Function Get-Type()
 	{
         if ($PSBoundParameters.ContainsKey("InputObject"))
         {
-            $ts = @($InputObject.GetType());
+            if ($InputObject -is [type])
+            {
+                [type[]]$ts = @(Resolve-Type -TypeName $InputObject.FullName)
+            }
+            else
+            {
+                [type[]]$ts = @($InputObject.GetType());
+            }
         }
         else
         {
@@ -233,6 +240,8 @@ Function Get-Type()
 
         foreach ($type in $ts)
         {
+            Write-Debug ("ParameterSetName is: {0}" -f $PSCmdlet.ParameterSetName);
+            Write-Debug "Current Type: $($type.FullName)"
             switch ($PSCmdlet.ParameterSetName)
             {
                 "GetFullNameFromPipeline"
@@ -346,8 +355,12 @@ Function Get-Property()
         [parameter(Mandatory, ParameterSetName='ByTypeName')]
         [string] $TypeName,
 
-        [parameter(Mandatory = $false, Position = 0)]
+        [parameter(Mandatory = $false, Position = 1)]
         [string[]] $Name,
+
+        [parameter(Mandatory = $false, Position = 0)]
+        [ValidateSet("All", "Get", "GetSet", "Set")]
+        [string] $Accessors = "All",
 
         [parameter(Mandatory = $false)]
         [System.Reflection.BindingFlags[]] $Flags = @([System.Reflection.BindingFlags]::Public, [System.Reflection.BindingFlags]::Instance)
@@ -378,6 +391,25 @@ Function Get-Property()
             if ($PSBoundParameters.ContainsKey("Name"))
             {
                 $script = { $_.Name -in $Name }
+                [System.Reflection.PropertyInfo[]]$allProps = $allProps | Where-Object $script;
+            }
+            if ($PSBoundParameters.ContainsKey("Accessors") -and $Accessors -ne "All")
+            {
+                switch ($Accessors)
+                {
+                    "GetSet"
+                    {
+                        $script = { $_.CanRead -and $_.CanWrite };
+                    }
+                    "Set"
+                    {
+                        $script = { -not $_.CanRead -and $_.CanWrite };
+                    }
+                    default
+                    {
+                        $script = { $_.CanRead };
+                    }
+                }
                 [System.Reflection.PropertyInfo[]]$allProps = $allProps | Where-Object $script;
             }
             foreach ($prop in $allProps)
