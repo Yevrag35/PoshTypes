@@ -211,11 +211,20 @@ Function Get-Method()
         [string[]] $Name,
 
         [parameter(Mandatory = $false)]
+        [System.Reflection.BindingFlags[]] $Flags = @([System.Reflection.BindingFlags]::Public,[System.Reflection.BindingFlags]::Instance),
+
+        [parameter(Mandatory = $false)]
         [switch] $Force
     )
     Begin
     {
         $list = New-Object System.Collections.Generic.List[type];
+        [string[]]$strFlags = @();
+        foreach ($e in $Flags)
+        {
+            $strFlags += $e.ToString();
+        }
+        [System.Reflection.BindingFlags]$realFlags = [enum]::Parse(([System.Reflection.BindingFlags]), ($strFlags -join ','), $true);
     }
     Process
     {
@@ -234,7 +243,7 @@ Function Get-Method()
         for ($i = 0; $i -lt $list.Count; $i++)
         {
             $t = $list[$i];
-            [System.Reflection.MethodInfo[]]$allMethods = $t.GetMethods();
+            [System.Reflection.MethodInfo[]]$allMethods = $t.GetMethods($realFlags);
             if ($PSBoundParameters.ContainsKey("Name"))
             {
                 $script = { $_.Name -in $Name }
@@ -350,4 +359,4 @@ Function Resolve-Type()
     }
 }
 
-Export-ModuleMember -Function "Get-Method", "Get-Type", "Get-Parameter", "Resolve-Type" -Alias "gt"
+Export-ModuleMember -Function "Get-Method", "Get-Type", "Get-Parameter" -Alias "gmt", "gt", "gpm", "pm"

@@ -38,6 +38,9 @@
                                 <PropertyName>IsGenericMethod</PropertyName>
                             </ListItem>
                             <ListItem>
+                                <PropertyName>IsPublic</PropertyName>
+                            </ListItem>
+                            <ListItem>
                                 <PropertyName>IsStatic</PropertyName>
                             </ListItem>
                             <ListItem>
