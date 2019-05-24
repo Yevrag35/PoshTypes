@@ -207,8 +207,11 @@ Function Get-Method()
         [parameter(Mandatory, ParameterSetName="ByTypeName")]
         [string] $TypeName,
 
-        [parameter(Mandatory, Position = 0)]
-        [string[]] $Name
+        [parameter(Mandatory = $false, Position = 0)]
+        [string[]] $Name,
+
+        [parameter(Mandatory = $false)]
+        [switch] $Force
     )
     Begin
     {
@@ -222,8 +225,32 @@ Function Get-Method()
         }
         else
         {
-            $list.Add(([type]@(Resolve-Type -TypeName $TypeName)));
+            $list.Add((Resolve-Type -TypeName $TypeName));
         }
+    }
+    End
+    {
+        $outList = New-Object System.Collections.Generic.List[PoshMethod]
+        for ($i = 0; $i -lt $list.Count; $i++)
+        {
+            $t = $list[$i];
+            [System.Reflection.MethodInfo[]]$allMethods = $t.GetMethods();
+            if ($PSBoundParameters.ContainsKey("Name"))
+            {
+                $script = { $_.Name -in $Name }
+                [System.Reflection.MethodInfo[]]$allMethods = $allMethods | Where-Object $script;
+            }
+            elseif (-not $PSBoundParameters.ContainsKey("Force"))
+            {
+                $script = { $_.Name -notlike "*_*" }
+                [System.Reflection.MethodInfo[]]$allMethods = $allMethods | Where-Object $script;
+            }
+            foreach ($meth in $allMethods)
+            {
+                $outList.Add($meth);
+            }
+        }
+        Write-Output $outList;
     }
 }
 
@@ -323,4 +350,4 @@ Function Resolve-Type()
     }
 }
 
-Export-ModuleMember -Function "Get-Type", "Get-Parameter", "Resolve-Type" -Alias "gt"
+Export-ModuleMember -Function "Get-Method", "Get-Type", "Get-Parameter", "Resolve-Type" -Alias "gt"

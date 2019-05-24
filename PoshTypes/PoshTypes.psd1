@@ -78,7 +78,7 @@ FormatsToProcess = @('PoshMethod.ps1xml', 'PoshMethodParameter.ps1xml')
 NestedModules = @('PoshTypes.psm1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Get-Type', 'Get-Parameter', 'Resolve-Type'
+FunctionsToExport = 'Get-Method', 'Get-Type', 'Get-Parameter', 'Resolve-Type'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'

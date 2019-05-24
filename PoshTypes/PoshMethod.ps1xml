@@ -6,7 +6,52 @@
             <ViewSelectedBy>
                 <TypeName>PoshMethod</TypeName>
             </ViewSelectedBy>
-            <TableControl>
+            <ListControl>
+                <ListEntries>
+                    <ListEntry>
+                        <ListItems>
+                            <ListItem>
+                                <Label>Definition</Label>
+                                <ScriptBlock>
+                                    $prms = $_.GetParameters();
+                                    if ($prms.Length -gt 0) 
+                                    {
+                                        $strs = @();
+                                        foreach ($p in $prms)
+                                        {
+                                            $strs += "{0} {1}" -f $p.ParameterType.FullName, $p.Name;
+                                        }
+                                        if ($strs.Count -gt 0)
+                                        {
+                                            $strs = $strs -join ', ';
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $strs = [string]::Empty;
+                                    }
+                                    "{0} {1}({2})" -f $_.ReturnType.FullName, $_.Name, $strs;
+                                </ScriptBlock>
+                            </ListItem>
+                            <ListItem>
+                                <Label>IsGeneric</Label>
+                                <PropertyName>IsGenericMethod</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>IsStatic</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>Name</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Returns</Label>
+                                <PropertyName>ReturnType</PropertyName>
+                            </ListItem>
+                        </ListItems>
+                    </ListEntry>
+                </ListEntries>
+            </ListControl>
+            <!-- <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
                         <Label>Method</Label>
@@ -56,7 +101,7 @@
                         </TableColumnItems>
                     </TableRowEntry>
                 </TableRowEntries>
-            </TableControl>
+            </TableControl> -->
         </View>
     </ViewDefinitions>
 </Configuration>

@@ -6,6 +6,28 @@
             <ViewSelectedBy>
                 <TypeName>PoshMethodParameter</TypeName>
             </ViewSelectedBy>
+            <!-- <ListControl>
+                <ListEntries>
+                    <ListEntry>
+                        <ListItems>
+                            <ListItem>
+                                <Label>Method</Label>
+                                <ScriptBlock>$_.Member.Name</ScriptBlock>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>Name</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>ParameterType</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>Position</PropertyName>
+                            </ListItem>
+                            <ListItem></ListItem>
+                        </ListItems>
+                    </ListEntry>
+                </ListEntries>
+            </ListControl> -->
             <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
