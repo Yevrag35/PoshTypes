@@ -138,7 +138,7 @@ public class PoshMethodParameter : BaseObject
     }
 }
 '@
-Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", "System.Collections", "System.Reflection";
+Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", "System.Collections", "System.Linq", "System.Reflection";
 
 Function Get-Type()
 {

@@ -62,6 +62,7 @@ RequiredModules = @(
 # Assemblies that must be loaded prior to importing this module
 RequiredAssemblies = @(
     'System.Collections',
+    'System.Linq',
     'System.Reflection'
 )
 
