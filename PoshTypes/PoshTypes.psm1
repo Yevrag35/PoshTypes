@@ -1,5 +1,6 @@
 ﻿$code = @'
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -180,6 +181,14 @@ public class PoshProperty : BaseObject
         return (PropertyInfo)pp._backingField;
     }
 }
+
+public class PoshPropertySorter : IComparer<PoshProperty>
+{
+    public int Compare(PoshProperty x, PoshProperty y)
+    {
+        return x.Name.CompareTo(y.Name);
+    }
+}
 '@
 Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", "System.Collections", "System.Linq", "System.Reflection";
 
@@ -344,13 +353,16 @@ Function Get-Method()
 
 Function Get-Property()
 {
-    [CmdletBinding(PositionalBinding = $false)]
+    [CmdletBinding(PositionalBinding = $false, DefaultParameterSetName='ByPipelineType')]
     [Alias("getprop", "gpt")]
     [OutputType([PoshProperty])]
     param
     (
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByPipelineObject')]
+        [object] $InputObject,
+
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName='ByPipelineType')]
-        [type] $InputObject,
+        [type] $InputType,
 
         [parameter(Mandatory, ParameterSetName='ByTypeName')]
         [string] $TypeName,
@@ -363,7 +375,16 @@ Function Get-Property()
         [string] $Accessors = "All",
 
         [parameter(Mandatory = $false)]
-        [System.Reflection.BindingFlags[]] $Flags = @([System.Reflection.BindingFlags]::Public, [System.Reflection.BindingFlags]::Instance)
+        [System.Reflection.BindingFlags[]] $Flags = @([System.Reflection.BindingFlags]::Public, [System.Reflection.BindingFlags]::Instance),
+
+        [parameter(Mandatory = $false)]
+        [switch] $CSharpFormat,
+
+        [parameter(Mandatory = $false)]
+        [switch] $PSFormatFile,
+
+        [parameter(Mandatory = $false)]
+        [switch] $UseItemSelectionCondition
     )
     Begin
     {
@@ -374,11 +395,16 @@ Function Get-Property()
     {
         if ($PSBoundParameters.ContainsKey("InputObject"))
         {
-            $list.Add($InputObject);
+            [type[]]$types = Get-Type -InputObject $InputObject;
+            $list.AddRange($types);
+        }
+        elseif ($PSBoundParameters.ContainsKey("InputType"))
+        {
+            $list.Add($InputType);
         }
         else
         {
-            $list.Add((Resolve-Type -TypeName $TypeName));
+            $list.Add($(Resolve-Type -TypeName $TypeName));
         }
     }
     End
@@ -417,7 +443,46 @@ Function Get-Property()
                 $outList.Add($prop);
             }
         }
-        Write-Output $outList;
+        $outList.Sort((New-Object PoshPropertySorter));
+        if (-not $PSBoundParameters.ContainsKey("CSharpFormat") -and -not $PSBoundParameters.ContainsKey("PSFormatFile"))
+        {
+            Write-Output $outList;
+        }
+        elseif ($PSBoundParameters.ContainsKey("CSharpFormat"))
+        {
+            $outFormat = $outList | `
+                Select-Object @{N="get;";E={$_.CanRead}},@{N="set;";E={$_.CanWrite}},Name,@{N="Type";E={$_.PropertyType.FullName}};
+
+            Write-Output $outFormat;
+        }
+        else
+        {
+            $elements = New-Object -TypeName System.Collections.Generic.List[string] $outList.Count;
+            if (-not $PSBoundParameters.ContainsKey("UseItemSelectionCondition"))
+            {
+                $liElement = @'
+<ListItem>
+    <PropertyName>{0}</PropertyName>
+</ListItem>
+'@
+            }
+            else
+            {
+                $liElement = @'
+<ListItem>
+    <PropertyName>{0}</PropertyName>
+    <ItemSelectionCondition>
+        <ScriptBlock>$_.{0} -ne $null</ScriptBlock>
+    </ItemSelectionCondition>
+</ListItem>
+'@
+            }
+            for ($n = 0; $n -lt $outList.Count; $n++)
+            {
+                $elements.Add($($liElement -f $outList[$n].Name));
+            }
+            Write-Output -InputObject $($elements -join "`n");
+        }
     }
 }
 
