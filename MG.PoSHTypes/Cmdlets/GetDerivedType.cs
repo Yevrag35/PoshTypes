@@ -116,10 +116,5 @@ namespace MG.PowerShell.Types.Cmdlets
         }
 
         #endregion
-
-        #region BACKEND METHODS
-
-
-        #endregion
     }
 }

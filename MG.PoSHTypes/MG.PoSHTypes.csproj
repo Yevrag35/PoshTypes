@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cmdlets\BaseTypeCmdlet.cs" />
     <Compile Include="Cmdlets\GetDerivedType.cs" />
     <Compile Include="Cmdlets\GetType.cs" />
     <Compile Include="Objects\BaseObject.cs" />
@@ -60,10 +61,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="GenerateManifest.ps1" />
+    <None Include="TypeFormats\PoshMethod.ps1xml" />
+    <None Include="TypeFormats\PoshMethodParameter.ps1xml" />
+    <None Include="TypeFormats\PoshProperty.ps1xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assemblies\" />
-    <Folder Include="TypeFormats\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
