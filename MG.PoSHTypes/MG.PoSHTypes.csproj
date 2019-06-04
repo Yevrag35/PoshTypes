@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MG.Dynamic">
-      <HintPath>..\..\DynamicParameterDll\bin\Debug\MG.Dynamic.dll</HintPath>
+      <HintPath>Assemblies\MG.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

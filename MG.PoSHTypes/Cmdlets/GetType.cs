@@ -1,5 +1,6 @@
 ﻿using MG.Dynamic;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -25,6 +26,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetPropertiesFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
+        [Alias("io")]
         public object InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetTypeFromName")]
@@ -50,6 +52,10 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         public SwitchParameter Methods { get; set; }
 
         [Parameter(Mandatory = false)]
+        [Alias("u")]
+        public SwitchParameter Unique { get; set; }
+
+        [Parameter(Mandatory = false)]
         public SwitchParameter Force { get; set; }
 
         #endregion
@@ -62,91 +68,124 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         protected override void ProcessRecord()
         {
-            if (this.ParameterSetName.Contains("Pipeline"))
+            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods"))
             {
-                if (InputObject is ScriptBlock sb)
+                if (this.ParameterSetName.Contains("Pipeline"))
                 {
-                    Collection<PSObject> sbResult = sb.Invoke();
-                    for (int i1 = 0; i1 < sbResult.Count; i1++)
+                    if (InputObject is ScriptBlock sb)
                     {
-                        PSObject one = sbResult[i1];
-                        if (one.ImmediateBaseObject is Type t)
+                        Collection<PSObject> sbResult = sb.Invoke();
+                        for (int i1 = 0; i1 < sbResult.Count; i1++)
                         {
-                            ResolvedTypes.Add(t);
-                        }
-                        else if (one.ImmediateBaseObject is IEnumerable<Type> types)
-                        {
-                            ResolvedTypes.AddRange(types);
-                        }
-                        else if (one.ImmediateBaseObject is string str)
-                        {
-                            ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(new string[1] { str }));
-                        }
-                        else if (one.ImmediateBaseObject is IEnumerable<string> strs)
-                        {
-                            ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs));
+                            PSObject one = sbResult[i1];
+                            if (one.ImmediateBaseObject is Type t)
+                            {
+                                ResolvedTypes.Add(t);
+                            }
+                            else if (one.ImmediateBaseObject is IEnumerable<Type> types)
+                            {
+                                ResolvedTypes.AddRange(types);
+                            }
+                            else if (one.ImmediateBaseObject is string str)
+                            {
+                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(new string[1] { str }));
+                            }
+                            else if (one.ImmediateBaseObject is IEnumerable<string> strs)
+                            {
+                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs));
+                            }
                         }
                     }
-                    WriteObject(ResolvedTypes);
+                    else if (InputObject is PSObject psObj)
+                    {
+                        if (psObj.ImmediateBaseObject.GetType().IsArray)
+                        {
+                            foreach (object obj in (IEnumerable)psObj.ImmediateBaseObject)
+                            {
+                                ResolvedTypes.Add(obj.GetType());
+                            }
+                        }
+                        else
+                        {
+                            ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
+                        }
+                    }
                 }
-                else
+                else if (this.MyInvocation.BoundParameters.ContainsKey("TypeName"))
                 {
-                    WriteObject(this.GetReturnObjectsFromPipeline());
+                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(TypeName));
                 }
             }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("TypeName"))
+            else if (this.MyInvocation.BoundParameters.ContainsKey("Properties"))
             {
-                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(TypeName));
-                for (int i = 0; i < ResolvedTypes.Count; i++)
-                {
-                    WriteObject(this.GetReturnObjects(ResolvedTypes[i]));
-                }
+                WriteObject(this.GetMemberCommand(InputObject, "Properties", Force.ToBool()));
+            }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("Methods"))
+            {
+                WriteObject(this.GetMemberCommand(InputObject, "Methods", Force.ToBool()));
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods")
+                && !this.MyInvocation.BoundParameters.ContainsKey("FullName"))
+            {
+                if (this.MyInvocation.BoundParameters.ContainsKey("Unique"))
+                    ResolvedTypes = ResolvedTypes.Distinct().ToList();
+
+                WriteObject(ResolvedTypes);
+            }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
+            {
+                WriteObject(ResolvedTypes.Select(x => x.FullName));
             }
         }
 
         #endregion
 
         #region BACKEND METHODS
-        private IEnumerable<object> GetReturnObjects(Type type)
-        {
-            switch (this.ParameterSetName)
-            {
-                case "GetFullNameFromPipeline":
-                    return new string[1] { type.FullName };
+        //private void GetReturnObjects(Type type)
+        //{
+        //    switch (this.ParameterSetName)
+        //    {
+        //        case "GetFullNameFromPipeline":
+        //            return new string[1] { type.FullName };
 
-                case "GetFullNameFromName":
-                    return new string[1] { type.FullName };
+        //        case "GetFullNameFromName":
+        //            return new string[1] { type.FullName };
 
-                default:
-                    return new Type[1] { type };
-            }
-        }
+        //        default:
+        //            ResolvedTypes.Add(type);
+        //            break;
+        //    }
+        //}
 
-        private IEnumerable<object> GetReturnObjectsFromPipeline()
-        {
-            switch (this.ParameterSetName)
-            {
-                case "GetPropertiesFromPipeline":
-                    return this.GetMemberCommand(InputObject, "Properties", Force.ToBool());
+        //private IEnumerable<object> GetReturnObjectsFromPipeline()
+        //{
+        //    switch (this.ParameterSetName)
+        //    {
+        //        case "GetPropertiesFromPipeline":
+        //            return this.GetMemberCommand(InputObject, "Properties", Force.ToBool());
 
-                case "GetMethodsFromPipeline":
-                    return this.GetMemberCommand(InputObject, "Methods", Force.ToBool());
+        //        case "GetMethodsFromPipeline":
+        //            return this.GetMemberCommand(InputObject, "Methods", Force.ToBool());
 
-                default:
-                    if (InputObject is PSObject psObj)
-                    {
-                        ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
-                    }
-                    else if (InputObject.GetType().IsArray)
-                    {
-                        foreach (object obj in (object[])InputObject)
-                        {
-                            ResolvedTypes.Add(obj.GetType());
-                        }
-                    }
-                    return ResolvedTypes;
-            }
-        }
+        //        default:
+        //            if (InputObject is PSObject psObj)
+        //            {
+        //                ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
+        //            }
+        //            else if (InputObject.GetType().IsArray)
+        //            {
+        //                foreach (object obj in (object[])InputObject)
+        //                {
+        //                    ResolvedTypes.Add(obj.GetType());
+        //                }
+        //            }
+        //            return ResolvedTypes;
+        //    }
+        //}
 
         private IEnumerable<object> GetMemberCommand(object pipedObject, string memberType, bool force)
         {
