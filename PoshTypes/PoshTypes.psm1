@@ -5,6 +5,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+public static class DerivedType
+{
+    public static IEnumerable<Type> GetDerivedType(string baseType, bool recurse, params Assembly[] assemblies)
+    {
+        var list = new List<Type>();
+        for (int i = 0; i < assemblies.Length; i++)
+        {
+            Assembly ass = assemblies[i];
+            foreach (Type type in ass.ExportedTypes)
+            {
+                if (type.BaseType != null && !string.IsNullOrEmpty(type.BaseType.FullName) && type.BaseType.FullName.Equals(baseType))
+                {
+                    list.Add(type);
+                    if (recurse)
+                    {
+                        list.AddRange(GetDerivedType(type.FullName, recurse, assemblies));
+                    }
+                }
+            }
+        }
+        return list;
+    }
+}
+
 public abstract class BaseObject
 {
     private const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
@@ -191,6 +215,88 @@ public class PoshPropertySorter : IComparer<PoshProperty>
 }
 '@
 Add-Type -TypeDefinition $code -Language CSharp -ReferencedAssemblies "System", "System.Collections", "System.Linq", "System.Reflection";
+
+Function Get-DerivedType()
+{
+    [CmdletBinding(DefaultParameterSetName='FromTypeName')]
+    [Alias("gdt")]
+    [OutputType([type])]
+    param
+    (
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName='InputObjectFromPipeline', DontShow)]
+        [object] $InputObject,
+
+        [parameter(Mandatory, Position = 0, ParameterSetName='FromTypeName')]
+        [string] $BaseType,
+
+        [parameter(Mandatory = $false, Position = 1)]
+        [ValidateSet("AppDomain", "File")]
+        [string] $Scope = "AppDomain",
+
+        [parameter(Mandatory = $false)]
+        [switch] $Recurse
+    )
+    DynamicParam
+    {
+        $attCol = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute];
+        $rtDict = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary;
+        $pAtt = New-Object -TypeName System.Management.Automation.ParameterAttribute;
+        if ($Scope -ne "File")
+        {
+            $pAtt.Mandatory = $false
+            [string[]]$assNames = [System.AppDomain]::CurrentDomain.GetAssemblies().FullName;
+            $valSet = New-Object -TypeName System.Management.Automation.ValidateSetAttribute($assNames);
+            $attCol.Add($valSet);
+        }
+        else
+        {
+            $pAtt.Mandatory = $true;
+        }
+        $attCol.Add($pAtt);
+        $rtParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter('Assembly', [string[]], $attCol);
+        $rtDict.Add('Assembly', $rtParam);
+        return $rtDict;
+    }
+    Begin
+    {
+        [string[]]$Assembly = $PSBoundParameters["Assembly"];
+    }
+    Process
+    {
+        if ($PSBoundParameters.ContainsKey("InputObject"))
+        {
+            if ($InputObject -is [type])
+            {
+                $BaseType = $InputObject.FullName;
+            }
+            else
+            {
+                $BaseType = $InputObject.GetType().FullName;
+            }
+        }
+        
+        if ($Assembly.Length -gt 0 -and $Scope -eq 'AppDomain')
+        {
+            [System.Reflection.Assembly[]]$ResolvedAssembly = foreach ($ass in $Assembly)
+            {
+                [System.Reflection.Assembly]::Load($ass);
+            }
+        }
+        else
+        {
+            [System.Reflection.Assembly[]]$ResolvedAssembly = [System.AppDomain]::CurrentDomain.GetAssemblies() | ?{-not $_.IsDynamic}
+        }
+        $hash = @{
+            BaseType = $BaseType
+            Recurse = $Recurse.ToBool()
+            Assemblies = $ResolvedAssembly.FullName
+        }
+        Write-Debug $($hash | Out-String);
+        [type[]]$types = [DerivedType]::GetDerivedType($BaseType, $Recurse.ToBool(), $ResolvedAssembly);
+        Write-Debug $($types.FullName | Out-String);
+        Write-Output -InputObject $types;
+    }
+}
 
 Function Get-Type()
 {
@@ -593,21 +699,3 @@ Function Join-Enum([System.Reflection.BindingFlags[]]$Flags)
 }
 
 #endregion
-
-$export = @{
-    Function = @(
-        "Get-Method",
-        "Get-Parameter",
-        "Get-Property",
-        "Get-Type"
-    )
-    Alias = @(
-        "gmt",
-        "gpm",
-        "gpt",
-        "gt",
-        "pm"
-    )
-};
-
-Export-ModuleMember @export;
