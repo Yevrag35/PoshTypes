@@ -49,6 +49,7 @@
     <Compile Include="Cmdlets\BaseTypeCmdlet.cs" />
     <Compile Include="Cmdlets\GetDerivedType.cs" />
     <Compile Include="Cmdlets\GetMethod.cs" />
+    <Compile Include="Cmdlets\GetParameter.cs" />
     <Compile Include="Cmdlets\GetProperty.cs" />
     <Compile Include="Cmdlets\GetType.cs" />
     <Compile Include="Objects\BaseObject.cs" />
