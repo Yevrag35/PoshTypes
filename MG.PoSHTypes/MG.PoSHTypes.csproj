@@ -60,7 +60,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Debug.ps1" />
+    <Content Include="Debug.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="GenerateManifest.ps1" />
     <None Include="TypeFormats\PoshMethod.ps1xml" />
     <None Include="TypeFormats\PoshMethodParameter.ps1xml" />

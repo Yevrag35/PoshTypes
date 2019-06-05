@@ -111,6 +111,10 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                             ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
                         }
                     }
+                    else if (InputObject is object[])
+                    {
+                        ResolvedTypes.Add(typeof(object[]));
+                    }
                 }
                 else if (this.MyInvocation.BoundParameters.ContainsKey("TypeName"))
                 {
