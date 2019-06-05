@@ -31,6 +31,17 @@ namespace MG.PowerShell.Types
             { "string", typeof(string) }
         };
 
+        protected private virtual BindingFlags JoinFlags(params BindingFlags[] flags)
+        {
+            string[] strArr = new string[flags.Length];
+            for (int i = 0; i < flags.Length; i++)
+            {
+                strArr[i] = flags[i].ToString();
+            }
+            string oneStr = string.Join(",", strArr);
+            return (BindingFlags)Enum.Parse(typeof(BindingFlags), oneStr, true);
+        }
+
         protected private List<Type> ResolveType(IEnumerable<string> typeNames)
         {
             var Assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
@@ -52,11 +63,12 @@ namespace MG.PowerShell.Types
             return types;
         }
 
-        protected private List<Type> ResolveTypeThroughPowerShell(IEnumerable<string> typeNames)
+        protected private List<Type> ResolveTypeThroughPowerShell(params string[] typeNames)
         {
-            var types = new List<Type>();
-            foreach (string name in typeNames)
+            var types = new List<Type>(typeNames.Length);
+            for (int i = 0; i < typeNames.Length; i++)
             {
+                string name = typeNames[i];
                 var psScript = string.Format(SCRIPT, name);
                 using (var ps = System.Management.Automation.PowerShell.Create().AddScript(psScript))
                 {

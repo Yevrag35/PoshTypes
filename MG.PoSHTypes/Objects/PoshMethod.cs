@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -61,5 +63,37 @@ namespace MG.PowerShell.Types
         public static implicit operator PoshMethod(MethodInfo mi) => new PoshMethod(mi);
 
         public static implicit operator MethodInfo(PoshMethod pm) => (MethodInfo)pm._backingField;
+    }
+
+    public class PoshMethodSorter : IComparer<PoshMethod>
+    {
+        public int Compare(PoshMethod x, PoshMethod y)
+        {
+            int retNum = x.Name.CompareTo(y.Name);
+            if (retNum == 0)
+            {
+                int xLength = x.GetParameters().Length;
+                int yLength = y.GetParameters().Length;
+                retNum = xLength > yLength
+                    ? 1
+                    : xLength < yLength
+                        ? -1
+                        : 0;
+                
+                if (retNum == 0)
+                {
+                    Type xType = x.ReturnType;
+                    Type yType = y.ReturnType;
+                    retNum = !string.IsNullOrEmpty(xType.FullName) && !string.IsNullOrEmpty(yType.FullName)
+                        ? xType.FullName.CompareTo(yType.FullName)
+                        : string.IsNullOrEmpty(xType.FullName) && !string.IsNullOrEmpty(yType.FullName)
+                            ? 1
+                            : !string.IsNullOrEmpty(xType.FullName) && string.IsNullOrEmpty(yType.FullName)
+                                ? -1
+                                : 0;
+                }
+            }
+            return retNum;
+        }
     }
 }

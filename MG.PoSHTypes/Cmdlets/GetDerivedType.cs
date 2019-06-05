@@ -11,6 +11,7 @@ namespace MG.PowerShell.Types.Cmdlets
     [Cmdlet(VerbsCommon.Get, "DerivedType", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "FromTypeName")]
     [Alias("gdt")]
     [OutputType(typeof(Type))]
+    [CmdletBinding(PositionalBinding = false)]
     public class GetDerivedType : PSCmdlet, IDynamicParameters
     {
         #region FIELDS/CONSTANTS

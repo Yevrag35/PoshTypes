@@ -46,14 +46,14 @@ $manifest = @{
 	RequiredModules	   = @{ ModuleName = "Microsoft.PowerShell.Utility"; ModuleVersion = '3.1.0.0'; Guid = '1da87e53-152b-403e-98dc-74d7b4d63d59' }
     PowerShellVersion  = '5.1'
     RootModule         = $TargetFileName
-    RequiredAssemblies = @('System.Collections', 'System.Linq', 'System.Reflection')
+#    RequiredAssemblies = @('System.Collections', 'System.Linq', 'System.Reflection')
     AliasesToExport    = @("gdt", "gmt", "gpm", "gpt", "gt", "pm")
     CmdletsToExport    = '*'
     FunctionsToExport  = @()
     VariablesToExport  = ''
     FormatsToProcess   = if ($allFormats.Length -gt 0) { $allFormats } else { @() };
     ProjectUri	       = 'https://github.com/Yevrag35/PoshTypes'
-    Tags               = @( 'Reflection', 'Get', 'Type', 'Method', 'Property', 'Properties', 'Name', 'Full', 
+    Tags               = @( 'Reflection', 'Get', 'Type', 'Method', 'Property', 'Properties', 'Name', 'Full',
 						    'Force', 'Member', 'switch', 'Parameter', 'arguments', 'pipeline', 'inputobject' )
 };
 

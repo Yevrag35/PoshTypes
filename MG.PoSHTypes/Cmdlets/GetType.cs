@@ -12,6 +12,7 @@ namespace MG.PowerShell.Types.Cmdlets
     [Cmdlet(VerbsCommon.Get, "Type", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "GetTypeFromPipeline")]
     [Alias("gt")]
     [OutputType(typeof(Type))]
+    [CmdletBinding(PositionalBinding = false)]
     public class GetType : BaseTypeCmdlet
     {
         #region FIELDS/CONSTANTS
@@ -88,11 +89,11 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                             }
                             else if (one.ImmediateBaseObject is string str)
                             {
-                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(new string[1] { str }));
+                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
                             }
                             else if (one.ImmediateBaseObject is IEnumerable<string> strs)
                             {
-                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs));
+                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs.ToArray()));
                             }
                         }
                     }
@@ -118,11 +119,11 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("Properties"))
             {
-                WriteObject(this.GetMemberCommand(InputObject, "Properties", Force.ToBool()));
+                WriteObject(this.GetMemberCommand(InputObject, "Properties", Force.ToBool()), true);
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("Methods"))
             {
-                WriteObject(this.GetMemberCommand(InputObject, "Methods", Force.ToBool()));
+                WriteObject(this.GetMemberCommand(InputObject, "Methods", Force.ToBool()), true);
             }
         }
 
@@ -134,11 +135,11 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 if (this.MyInvocation.BoundParameters.ContainsKey("Unique"))
                     ResolvedTypes = ResolvedTypes.Distinct().ToList();
 
-                WriteObject(ResolvedTypes);
+                WriteObject(ResolvedTypes, true);
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
             {
-                WriteObject(ResolvedTypes.Select(x => x.FullName));
+                WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.ToArray()));
             }
         }
 

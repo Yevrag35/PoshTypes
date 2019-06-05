@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Cmdlets\BaseTypeCmdlet.cs" />
     <Compile Include="Cmdlets\GetDerivedType.cs" />
+    <Compile Include="Cmdlets\GetMethod.cs" />
     <Compile Include="Cmdlets\GetType.cs" />
     <Compile Include="Objects\BaseObject.cs" />
     <Compile Include="Objects\DerivedType.cs" />
