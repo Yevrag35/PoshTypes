@@ -56,6 +56,22 @@ namespace MG.PowerShell.Types
 
     public class PoshPropertySorter : IComparer<PoshProperty>
     {
-        public int Compare(PoshProperty x, PoshProperty y) => x.Name.CompareTo(y.Name);
+        public int Compare(PoshProperty x, PoshProperty y)
+        {
+            int retNum = x.Name.CompareTo(y.Name);
+            if (retNum == 0)
+            {
+                string xPropTypeName = x.PropertyType.FullName;
+                string yPropTypeName = y.PropertyType.FullName;
+                retNum = !string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+                    ? xPropTypeName.CompareTo(yPropTypeName)
+                    : string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+                        ? 1
+                        : !string.IsNullOrEmpty(xPropTypeName) && string.IsNullOrEmpty(yPropTypeName)
+                            ? -1
+                            : 0;
+            }
+            return retNum;
+        }
     }
 }

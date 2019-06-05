@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.CodeDom;
@@ -30,6 +31,19 @@ namespace MG.PowerShell.Types
             { "ushort", typeof(ushort) },
             { "string", typeof(string) }
         };
+
+        protected private virtual IEnumerable<Type> GetTypesFromArray(object array)
+        {
+            var list = new List<Type>();
+            if (array is IEnumerable ienum)
+            {
+                foreach (object obj in ienum)
+                {
+                    list.Add(obj.GetType());
+                }
+            }
+            return list;
+        }
 
         protected private virtual BindingFlags JoinFlags(params BindingFlags[] flags)
         {
