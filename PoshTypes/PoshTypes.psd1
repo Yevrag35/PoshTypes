@@ -113,6 +113,8 @@ PrivateData = @{
 
     PSData = @{
 
+        ExternalModuleDependencies = @('Microsoft.PowerShell.Utility')
+
         # Tags applied to this module. These help with module discovery in online galleries.
         Tags = 'Reflection', 'Get', 'Type', 'Method', 'Property', 'Properties', 'Name', 'Full', 
                'Force', 'Member', 'switch', 'Parameter', 'arguments', 'pipeline', 
