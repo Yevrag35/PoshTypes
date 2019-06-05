@@ -4,30 +4,8 @@
         <View>
             <Name>PoshMethodParameter</Name>
             <ViewSelectedBy>
-                <TypeName>PoshMethodParameter</TypeName>
+                <TypeName>MG.PowerShell.Types.PoshMethodParameter</TypeName>
             </ViewSelectedBy>
-            <!-- <ListControl>
-                <ListEntries>
-                    <ListEntry>
-                        <ListItems>
-                            <ListItem>
-                                <Label>Method</Label>
-                                <ScriptBlock>$_.Member.Name</ScriptBlock>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>Name</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>ParameterType</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>Position</PropertyName>
-                            </ListItem>
-                            <ListItem></ListItem>
-                        </ListItems>
-                    </ListEntry>
-                </ListEntries>
-            </ListControl> -->
             <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
@@ -35,7 +13,7 @@
                         <Alignment>Left</Alignment>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Alignment>Left</Alignment>
+                        <Alignment>Center</Alignment>
                     </TableColumnHeader>
                     <TableColumnHeader>
                         <Label>Parameter</Label>
@@ -59,7 +37,8 @@
                                 <PropertyName>Name</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>ParameterType</PropertyName>
+                                <!-- <PropertyName>ParameterType</PropertyName> -->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ParameterType)</ScriptBlock>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>

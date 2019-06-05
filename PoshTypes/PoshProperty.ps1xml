@@ -4,7 +4,7 @@
         <SelectionSet>
             <Name>PoshPropTable</Name>
             <Types>
-                <TypeName>PoshProperty</TypeName>
+                <TypeName>MG.PowerShell.Types.PoshProperty</TypeName>
             </Types>
         </SelectionSet>
     </SelectionSets>
@@ -12,7 +12,7 @@
         <View>
             <Name>PropertyList</Name>
             <ViewSelectedBy>
-                <TypeName>PoshProperty</TypeName>
+                <TypeName>MG.PowerShell.Types.PoshProperty</TypeName>
             </ViewSelectedBy>
             <ListControl>
                 <ListEntries>
@@ -29,15 +29,18 @@
                             </ListItem>
                             <ListItem>
                                 <Label>Type</Label>
-                                <PropertyName>PropertyType</PropertyName>
+                                <!-- <PropertyName>PropertyType</PropertyName> -->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.PropertyType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeDeclared</Label>
-                                <PropertyName>DeclaringType</PropertyName>
+                                <!-- <PropertyName>DeclaringType</PropertyName> -->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeReflected</Label>
-                                <PropertyName>ReflectedType</PropertyName>
+                                <!-- <PropertyName>ReflectedType</PropertyName> -->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
                             </ListItem>
                         </ListItems>
                     </ListEntry>

@@ -4,7 +4,7 @@
         <View>
             <Name>PoshMethod</Name>
             <ViewSelectedBy>
-                <TypeName>PoshMethod</TypeName>
+                <TypeName>MG.PowerShell.Types.PoshMethod</TypeName>
             </ViewSelectedBy>
             <ListControl>
                 <ListEntries>
@@ -14,12 +14,12 @@
                                 <Label>Definition</Label>
                                 <ScriptBlock>
                                     $prms = $_.GetParameters();
-                                    if ($prms.Length -gt 0) 
+                                    if ($prms.Length -gt 0)
                                     {
                                         $strs = @();
                                         foreach ($p in $prms)
                                         {
-                                            $strs += "{0} {1}" -f $p.ParameterType.FullName, $p.Name;
+                                            $strs += "{0} {1}" -f $([MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $p.ParameterType)), $p.Name;
                                         }
                                         if ($strs.Count -gt 0)
                                         {
@@ -30,7 +30,7 @@
                                     {
                                         $strs = [string]::Empty;
                                     }
-                                    "{0} {1}({2})" -f $_.ReturnType.FullName, $_.Name, $strs;
+                                    "{0} {1}({2})" -f $([MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReturnType)), $_.Name, $strs;
                                 </ScriptBlock>
                             </ListItem>
                             <ListItem>
@@ -48,15 +48,18 @@
                             </ListItem>
                             <ListItem>
                                 <Label>Returns</Label>
-                                <PropertyName>ReturnType</PropertyName>
+                                <!-- <PropertyName>ReturnType</PropertyName> -->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReturnType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeDeclared</Label>
-                                <PropertyName>DeclaringType</PropertyName>
+                                <!--<PropertyName>DeclaringType</PropertyName>-->
+                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeReflected</Label>
-                                <PropertyName>ReflectedType</PropertyName>
+                                <!--<PropertyName>ReflectedType</PropertyName>-->
+								<ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
                             </ListItem>
                         </ListItems>
                     </ListEntry>
