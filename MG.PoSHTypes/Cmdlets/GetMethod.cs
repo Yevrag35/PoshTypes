@@ -11,6 +11,7 @@ using System.Reflection;
 namespace MG.PowerShell.Types.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "Method", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByPipelineType")]
+    [Alias("gmt")]
     [OutputType(typeof(PoshMethod))]
     [CmdletBinding(PositionalBinding = false)]
     public class GetMethod : BaseTypeCmdlet
@@ -23,6 +24,7 @@ namespace MG.PowerShell.Types.Cmdlets
 
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "ByPipelineType")]
+        [Alias("io")]
         public Type InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByTypeName")]

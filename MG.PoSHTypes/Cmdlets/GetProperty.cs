@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -6,7 +7,7 @@ using System.Reflection;
 
 namespace MG.PowerShell.Types.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "Property", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByPipelineType")]
+    [Cmdlet(VerbsCommon.Get, "Property", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByTypeName")]
     [Alias("getprop", "gpt")]
     [OutputType(typeof(PoshProperty))]
     [CmdletBinding(PositionalBinding = false)]
@@ -33,7 +34,7 @@ namespace MG.PowerShell.Types.Cmdlets
         [Alias("io")]
         public object InputObject { get; set; }
 
-        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "ByTypeName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByTypeName")]
         [Alias("Type", "t")]
         public string TypeName { get; set; }
 
@@ -52,6 +53,10 @@ namespace MG.PowerShell.Types.Cmdlets
 
         [Parameter(Mandatory = false)]
         public SwitchParameter CSharpFormat { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = "ByPipelineObject")]
+        [Alias("enum")]
+        public SwitchParameter Enumerate { get; set; }
 
         [Parameter(Mandatory = false)]
         public SwitchParameter PSFormatFile { get; set; }
@@ -77,9 +82,9 @@ namespace MG.PowerShell.Types.Cmdlets
                 }
                 else if (InputObject is PSObject psObj)
                 {
-                    if (psObj.ImmediateBaseObject.GetType().IsArray)
+                    if (this.MyInvocation.BoundParameters.ContainsKey("Enumerate") && psObj.ImmediateBaseObject is IEnumerable ienum)
                     {
-                        list.AddRange(base.GetTypesFromArray(psObj.ImmediateBaseObject));
+                        list.AddRange(base.GetTypesFromArray(ienum));
                     }
                     else if (psObj.ImmediateBaseObject is Type type)
                     {
@@ -89,6 +94,10 @@ namespace MG.PowerShell.Types.Cmdlets
                     {
                         list.Add(psObj.ImmediateBaseObject.GetType());
                     }
+                }
+                else
+                {
+                    list.Add(InputObject.GetType());
                 }
             }
             else
@@ -114,13 +123,28 @@ namespace MG.PowerShell.Types.Cmdlets
                 }
             }
             props.Sort(new PoshPropertySorter());
-            WriteObject(props, true);
+
+            Func<PoshProperty, bool> function = this.GetCondition();
+            IEnumerable<PoshProperty> finalProps = props.Where(function);
+
+            if (this.MyInvocation.BoundParameters.ContainsKey("CSharpFormat"))
+            {
+                WriteObject(this.ToCSharpFormat(finalProps), true);
+            }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("PSFormatFile"))
+            {
+                WriteObject(this.ToPSFileFormat(finalProps));
+            }
+            else
+            {
+                WriteObject(finalProps, true);
+            }
         }
 
         #endregion
 
         #region BACKEND METHODS
-        private Func<PropertyInfo, bool> GetCondition()
+        private Func<PoshProperty, bool> GetCondition()
         {
             switch (Accessors)
             {
@@ -133,6 +157,41 @@ namespace MG.PowerShell.Types.Cmdlets
                 default:
                     return x => x.CanRead;
             }
+        }
+
+        private IEnumerable<PSObject> ToCSharpFormat(IEnumerable<PoshProperty> props)
+        {
+            var list = new List<PSObject>();
+            foreach (PoshProperty p in props)
+            {
+                var psObj = new PSObject();
+                var get = new PSNoteProperty("get;", p.CanRead);
+                var set = new PSNoteProperty("set;", p.CanWrite);
+                var name = new PSNoteProperty("Name", p.Name);
+                var type = new PSNoteProperty("Type", BaseObject.GetTypeAlias(true, p.PropertyType).First());
+
+                psObj.Properties.Add(get);
+                psObj.Properties.Add(set);
+                psObj.Properties.Add(name);
+                psObj.Properties.Add(type);
+                list.Add(psObj);
+            }
+            return list;
+        }
+
+        private string ToPSFileFormat(IEnumerable<PoshProperty> props)
+        {
+            var list = new List<string>();
+            string format = this.MyInvocation.BoundParameters.ContainsKey("UseItemSelectionCondition")
+                ? LI_ELE_COND
+                : LI_ELE;
+
+            foreach (PoshProperty p in props)
+            {
+                string liStr = string.Format(format, p.Name);
+                list.Add(liStr);
+            }
+            return string.Join(NL, list);
         }
 
         #endregion

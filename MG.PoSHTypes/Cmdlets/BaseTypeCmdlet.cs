@@ -32,15 +32,12 @@ namespace MG.PowerShell.Types
             { "string", typeof(string) }
         };
 
-        protected private virtual IEnumerable<Type> GetTypesFromArray(object array)
+        protected private virtual IEnumerable<Type> GetTypesFromArray(IEnumerable array)
         {
             var list = new List<Type>();
-            if (array is IEnumerable ienum)
+            foreach (object obj in array)
             {
-                foreach (object obj in ienum)
-                {
-                    list.Add(obj.GetType());
-                }
+                list.Add(obj.GetType());
             }
             return list;
         }
