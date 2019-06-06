@@ -12,7 +12,7 @@
 RootModule = 'MG.PowerShell.Types.dll'
 
 # Version number of this module.
-ModuleVersion = '1.1.0.0'
+ModuleVersion = '1.1.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -116,8 +116,8 @@ PrivateData = @{
         ExternalModuleDependencies = @('Microsoft.PowerShell.Utility')
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Reflection', 'Get', 'Type', 'Method', 'Property', 'Properties', 'Name', 'Full', 
-               'Force', 'Member', 'switch', 'Parameter', 'arguments', 'pipeline', 
+        Tags = 'Reflection', 'Get', 'Type', 'Method', 'Property', 'Properties', 'Name', 'Full',
+               'Force', 'Member', 'switch', 'Parameter', 'arguments', 'pipeline',
                'inputobject'
 
         # A URL to the license for this module.
@@ -130,7 +130,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Ported to CSharp for performance reasons.'
+        ReleaseNotes = 'Fixed ''-InputObject'' on Get-Type.  Changed behavior of Get-Type -- types from an enumerated collection will now show only unique by default.  Changed the ''-Unique'' parameter to ''-NonUnique''.'
 
     } # End of PSData hashtable
 

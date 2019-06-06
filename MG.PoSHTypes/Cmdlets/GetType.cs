@@ -54,7 +54,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         [Parameter(Mandatory = false)]
         [Alias("u")]
-        public SwitchParameter Unique { get; set; }
+        public SwitchParameter NonUnique { get; set; }
 
         [Parameter(Mandatory = false)]
         public SwitchParameter Force { get; set; }
@@ -136,7 +136,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
             if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods")
                 && !this.MyInvocation.BoundParameters.ContainsKey("FullName"))
             {
-                if (this.MyInvocation.BoundParameters.ContainsKey("Unique"))
+                if (!this.MyInvocation.BoundParameters.ContainsKey("NonUnique"))
                     ResolvedTypes = ResolvedTypes.Distinct().ToList();
 
                 WriteObject(ResolvedTypes, true);
