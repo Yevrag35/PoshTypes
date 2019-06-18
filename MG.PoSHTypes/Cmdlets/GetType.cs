@@ -115,6 +115,8 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                     {
                         ResolvedTypes.Add(typeof(object[]));
                     }
+                    else
+                        ResolvedTypes.Add(InputObject.GetType());
                 }
                 else if (this.MyInvocation.BoundParameters.ContainsKey("TypeName"))
                 {
