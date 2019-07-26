@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>MG.PowerShell.Types</RootNamespace>
+    <Copyright>Copyright © 2019 Yevrag35, LLC.</Copyright>
+    <Description>A shorthand module for performing ''GetType()'' and ''Get-Member'' methods quickly.</Description>
+    <Company>Yevrag35, LLC.</Company>
+    <Authors>Mike Garvey</Authors>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <RepositoryUrl>https://github.com/Yevrag35/PoshTypes</RepositoryUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Yevrag35/PoshTypes/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Version>1.2.0</Version>
+    <LangVersion>7.3</LangVersion>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <AssemblyName>MG.PowerShell.Types-Core</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assemblies\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MG.Dynamic-Core">
+      <HintPath>..\..\..\..\..\..\Repos\PoSHTypes\MG.PoSHTypes-Core\Assemblies\MG.Dynamic-Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

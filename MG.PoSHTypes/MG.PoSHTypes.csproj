@@ -40,8 +40,8 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.PowerShell.5.ReferenceAssemblies.1.1.0\lib\net4\System.Management.Automation.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Assemblies\System.Management.Automation.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -62,6 +62,7 @@
   <ItemGroup>
     <None Include="Debug.ps1" />
     <None Include="GenerateManifest.ps1" />
+    <None Include="packages.config" />
     <None Include="TypeFormats\PoshMethod.ps1xml" />
     <None Include="TypeFormats\PoshMethodParameter.ps1xml" />
     <None Include="TypeFormats\PoshProperty.ps1xml" />

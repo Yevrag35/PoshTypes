@@ -9,13 +9,20 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'MG.PowerShell.Types.dll'
+RootModule = if ($PSEdition -eq "Core")
+{
+	"Core\MG.PowerShell.Types-Core.dll"
+}
+else # Desktop
+{
+	"DotNet\MG.PowerShell.Types.dll"
+}
 
 # Version number of this module.
-ModuleVersion = '1.1.2'
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Desktop')
+CompatiblePSEditions = @('Core', 'Desktop')
 
 # ID used to uniquely identify this module
 GUID = '9b97132b-925e-46c2-a0d0-266d8b09f1cd'
@@ -24,7 +31,7 @@ GUID = '9b97132b-925e-46c2-a0d0-266d8b09f1cd'
 Author = 'Mike Garvey'
 
 # Company or vendor of this module
-CompanyName = 'DGR Systems, LLC.'
+CompanyName = 'Yevrag35, LLC.'
 
 # Copyright statement for this module
 Copyright = 'Copyright © 2019 Yevrag35, LLC.  All rights reserved.'
@@ -42,7 +49,7 @@ PowerShellVersion = '5.1'
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
+DotNetFrameworkVersion = '4.7'
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # CLRVersion = ''
@@ -54,7 +61,14 @@ PowerShellVersion = '5.1'
 # RequiredModules = @(@{ModuleName = 'Microsoft.PowerShell.Utility'; GUID = '1da87e53-152b-403e-98dc-74d7b4d63d59'; ModuleVersion = '3.1.0.0'; })
 
 # Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+RequiredAssemblies = if ($PSEdition -eq "Core")
+{
+	"Core\MG.Dynamic-Core.dll"
+}
+else # Desktop
+{
+	"DotNet\MG.Dynamic.dll"
+}
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -63,20 +77,20 @@ PowerShellVersion = '5.1'
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = 'PoshMethod.ps1xml', 'PoshMethodParameter.ps1xml', 
-               'PoshProperty.ps1xml'
+FormatsToProcess = 'Formats\PoshMethod.ps1xml', 'Formats\PoshMethodParameter.ps1xml',
+               'Formats\PoshProperty.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @()
+FunctionsToExport = ''
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = 'Get-DerivedType', 'Get-Method', 'Get-Parameter', 'Get-Property', 'Get-Type'
 
 # Variables to export from this module
-VariablesToExport = @()
+VariablesToExport = ''
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = 'gdt', 'gmt', 'gpm', 'gpt', 'gt', 'pm'
@@ -89,11 +103,13 @@ AliasesToExport = 'gdt', 'gmt', 'gpm', 'gpt', 'gt', 'pm'
 
 # List of all files packaged with this module
 FileList = @(
-    'MG.Dynamic.dll',
-    'MG.PowerShell.Types.dll',
-    'PoshMethod.ps1xml',
-    'PoshMethodParameter.ps1xml',
-    'PoshProperty.ps1xml',
+	'Core\MG.Dynamic-Core.dll',
+	'Core\MG.PowerShell.Types-Core.dll',
+    'DotNet\MG.Dynamic.dll',
+    'DotNet\MG.PowerShell.Types.dll',
+    'Formats\PoshMethod.ps1xml',
+    'Formats\PoshMethodParameter.ps1xml',
+    'Formats\PoshProperty.ps1xml',
     'PoshTypes.psd1'
 )
 
@@ -117,7 +133,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Fix when retrieving type by explicitly defining the ''-InputObject'' parameter.'
+        ReleaseNotes = 'Publishing Core & Desktop modules'
 
     } # End of PSData hashtable
 

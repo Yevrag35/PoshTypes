@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MG.PoSHTypes", "MG.PoSHTypes\MG.PoSHTypes.csproj", "{D105EF59-5BD0-4E7A-8318-1A17710A492F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MG.PoSHTypes-Core", "MG.PoSHTypes-Core\MG.PoSHTypes-Core.csproj", "{1E7CCBEB-7559-48DE-9EA3-5FA2B7FFDFA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D105EF59-5BD0-4E7A-8318-1A17710A492F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D105EF59-5BD0-4E7A-8318-1A17710A492F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D105EF59-5BD0-4E7A-8318-1A17710A492F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E7CCBEB-7559-48DE-9EA3-5FA2B7FFDFA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E7CCBEB-7559-48DE-9EA3-5FA2B7FFDFA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E7CCBEB-7559-48DE-9EA3-5FA2B7FFDFA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E7CCBEB-7559-48DE-9EA3-5FA2B7FFDFA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
