@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -28,6 +28,10 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Compile Include="..\MG.PoSHTypes\**\*.cs" Exclude="..\MG.PoSHTypes\obj\**\*.cs;..\MG.PoSHTypes\bin\**\.cs;..\MG.PoSHTypes\Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.2.2" />
   </ItemGroup>
@@ -41,6 +45,12 @@
       <HintPath>..\..\..\..\..\..\Repos\PoSHTypes\MG.PoSHTypes-Core\Assemblies\MG.Dynamic-Core.dll</HintPath>
       <Private>true</Private>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assemblies\MG.Dynamic-Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

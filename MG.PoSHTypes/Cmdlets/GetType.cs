@@ -27,6 +27,8 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetPropertiesFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFromPipeline")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfacesFromPipeline")]
         [Alias("io")]
         public object InputObject { get; set; }
 
@@ -34,6 +36,8 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetFullNameFromName")]
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetPropertiesFromName")]
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetMethodsFromName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFromName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfacesFromName")]
         [Alias("t", "Type")]
         public string[] TypeName { get; set; }
 
@@ -41,6 +45,16 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
         [Alias("f")]
         public SwitchParameter FullName { get; set; }
+
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromName")]
+        [Alias("b")]
+        public SwitchParameter BaseType { get; set; }
+
+        [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromName")]
+        [Alias("i")]
+        public SwitchParameter Interfaces { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromPipeline")]
         //[Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromName")]
@@ -53,7 +67,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         public SwitchParameter Methods { get; set; }
 
         [Parameter(Mandatory = false)]
-        [Alias("u")]
+        [Alias("nu")]
         public SwitchParameter NonUnique { get; set; }
 
         [Parameter(Mandatory = false)]
@@ -135,13 +149,22 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         protected override void EndProcessing()
         {
-            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods")
-                && !this.MyInvocation.BoundParameters.ContainsKey("FullName"))
-            {
-                if (!this.MyInvocation.BoundParameters.ContainsKey("NonUnique"))
-                    ResolvedTypes = ResolvedTypes.Distinct().ToList();
+            if (!this.MyInvocation.BoundParameters.ContainsKey("NonUnique"))
+                ResolvedTypes = ResolvedTypes.Distinct().ToList();
 
+            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods")
+                && !this.MyInvocation.BoundParameters.ContainsKey("FullName") && !this.MyInvocation.BoundParameters.ContainsKey("BaseType")
+                && !this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
+            {
                 WriteObject(ResolvedTypes, true);
+            }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("BaseType"))
+            {
+                WriteObject(ResolvedTypes.Select(x => x.BaseType), true);
+            }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
+            {
+                WriteObject(ResolvedTypes.SelectMany(x => x.GetInterfaces().Select(i => i.FullName)), true);
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
             {
@@ -152,47 +175,6 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         #endregion
 
         #region BACKEND METHODS
-        //private void GetReturnObjects(Type type)
-        //{
-        //    switch (this.ParameterSetName)
-        //    {
-        //        case "GetFullNameFromPipeline":
-        //            return new string[1] { type.FullName };
-
-        //        case "GetFullNameFromName":
-        //            return new string[1] { type.FullName };
-
-        //        default:
-        //            ResolvedTypes.Add(type);
-        //            break;
-        //    }
-        //}
-
-        //private IEnumerable<object> GetReturnObjectsFromPipeline()
-        //{
-        //    switch (this.ParameterSetName)
-        //    {
-        //        case "GetPropertiesFromPipeline":
-        //            return this.GetMemberCommand(InputObject, "Properties", Force.ToBool());
-
-        //        case "GetMethodsFromPipeline":
-        //            return this.GetMemberCommand(InputObject, "Methods", Force.ToBool());
-
-        //        default:
-        //            if (InputObject is PSObject psObj)
-        //            {
-        //                ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
-        //            }
-        //            else if (InputObject.GetType().IsArray)
-        //            {
-        //                foreach (object obj in (object[])InputObject)
-        //                {
-        //                    ResolvedTypes.Add(obj.GetType());
-        //                }
-        //            }
-        //            return ResolvedTypes;
-        //    }
-        //}
 
         private IEnumerable<object> GetMemberCommand(object pipedObject, string memberType, bool force)
         {
