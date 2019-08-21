@@ -11,27 +11,7 @@
                     <ListEntry>
                         <ListItems>
                             <ListItem>
-                                <Label>Definition</Label>
-                                <ScriptBlock>
-                                    $prms = $_.GetParameters();
-                                    if ($prms.Length -gt 0)
-                                    {
-                                        $strs = @();
-                                        foreach ($p in $prms)
-                                        {
-                                            $strs += "{0} {1}" -f $([MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $p.ParameterType)), $p.Name;
-                                        }
-                                        if ($strs.Count -gt 0)
-                                        {
-                                            $strs = $strs -join ', ';
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $strs = [string]::Empty;
-                                    }
-                                    "{0} {1}({2})" -f $([MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReturnType)), $_.Name, $strs;
-                                </ScriptBlock>
+								<PropertyName>Definition</PropertyName>
                             </ListItem>
                             <ListItem>
                                 <Label>IsGeneric</Label>
@@ -46,6 +26,9 @@
                             <ListItem>
                                 <PropertyName>Name</PropertyName>
                             </ListItem>
+							<ListItem>
+								<PropertyName>NumberOfParameters</PropertyName>
+							</ListItem>
                             <ListItem>
                                 <Label>Returns</Label>
                                 <!-- <PropertyName>ReturnType</PropertyName> -->

@@ -9,11 +9,17 @@ namespace MG.PowerShell.Types
 {
     public class PoshMethod : BaseObject
     {
+        private const string PARAMETER_FORMAT = "{0} {1}";
+        private const string DEF_FORMAT = "{0} {1}({2})";
+        private bool? _hasParams = null;
+
         public MethodAttributes Attributes { get; private set; }
         public CallingConventions CallingConvention { get; private set; }
         public bool ContainsGenericParameters { get; private set; }
         public IEnumerable<CustomAttributeData> CustomAttributes { get; private set; }
         public Type DeclaringType { get; private set; }
+        public string Definition { get; }
+        public bool HasParameters => _hasParams.HasValue && _hasParams.Value;
         public bool IsAbstract { get; private set; }
         public bool IsAssembly { get; private set; }
         public bool IsConstructor { get; private set; }
@@ -38,6 +44,7 @@ namespace MG.PowerShell.Types
         public MethodImplAttributes MethodImplementationFlags { get; private set; }
         public Module Module { get; private set; }
         //public string Name { get; private set; }
+        public int NumberOfParameters { get; }
         public Type ReflectedType { get; private set; }
         public ParameterInfo ReturnParameter { get; private set; }
         public Type ReturnType { get; private set; }
@@ -47,10 +54,21 @@ namespace MG.PowerShell.Types
         {
             base.SetProperties(mi);
             base._backingField = mi;
+            var prms = this.GetParameters();
+            _hasParams = prms != null && prms.Length > 0;
+
+            this.NumberOfParameters = _hasParams.Value
+                ? prms.Length
+                : 0;
+
+            this.Definition = this.FormatDefinition(prms);
         }
 
         public PoshMethodParameter[] GetParameters()
         {
+            if (_hasParams.HasValue && !_hasParams.Value)
+                return null;
+
             ParameterInfo[] prms = ((MethodInfo)base._backingField).GetParameters();
             var newArr = new PoshMethodParameter[prms.Length];
             for (int i =  0; i < prms.Length; i++)
@@ -60,8 +78,24 @@ namespace MG.PowerShell.Types
             return newArr;
         }
 
-        public static implicit operator PoshMethod(MethodInfo mi) => new PoshMethod(mi);
+        private string FormatDefinition(params PoshMethodParameter[] parameters)
+        {
+            string str = string.Empty;
+            if (parameters != null && parameters.Length > 0)
+            {
+                var strs = new string[parameters.Length];
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    PoshMethodParameter p = parameters[i];
+                    strs[i] = string.Format(PARAMETER_FORMAT, GetTypeAlias(true, p.ParameterType).FirstOrDefault(), p.Name);
+                }
+                str = string.Join(", ", strs);
+            }
+            string formatted = string.Format(DEF_FORMAT, GetTypeAlias(true, this.ReturnType).FirstOrDefault(), this.Name, str);
+            return formatted;
+        }
 
+        public static implicit operator PoshMethod(MethodInfo mi) => new PoshMethod(mi);
         public static implicit operator MethodInfo(PoshMethod pm) => (MethodInfo)pm._backingField;
     }
 
@@ -72,8 +106,8 @@ namespace MG.PowerShell.Types
             int retNum = x.Name.CompareTo(y.Name);
             if (retNum == 0)
             {
-                int xLength = x.GetParameters().Length;
-                int yLength = y.GetParameters().Length;
+                int xLength = x.NumberOfParameters;
+                int yLength = y.NumberOfParameters;
                 retNum = xLength > yLength
                     ? 1
                     : xLength < yLength
