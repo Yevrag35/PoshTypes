@@ -15,14 +15,17 @@ namespace MG.PowerShell.Types
 
         public string Name { get; protected private set; }
 
-        public static IEnumerable<string> GetTypeAlias(bool forPowerShell, params Type[] types)
+        public static IEnumerable<string> GetTypeAlias(bool forPowerShell, params Type[] types) => GetTypeAlias(forPowerShell, types, types.Length);
+        public static IEnumerable<string> GetTypeAlias(bool forPowerShell, IEnumerable<Type> types, int howMany)
         {
-            var strs = new List<string>(types.Length);
+            if (types == null)
+                throw new ArgumentNullException("types");
+
+            var strs = new List<string>();
             using (var cdp = CodeDomProvider.CreateProvider("CSharp"))
             {
-                for (int i = 0; i < types.Length; i++)
+                foreach (Type type in types)
                 {
-                    Type type = types[i];
                     string result = cdp.GetTypeOutput(new CodeTypeReference(type));
 
                     string realString = !string.IsNullOrEmpty(result) && forPowerShell
@@ -35,11 +38,11 @@ namespace MG.PowerShell.Types
                     }
                 }
 
-                if (strs.Count == types.Length)
+                if (strs.Count == howMany)
                 {
                     return strs;
                 }
-                else if (strs.Count > 1 && types.Length == 1)
+                else if (strs.Count > 1 && howMany == 1)
                 {
                     string fullFormat = "{0}[{1}]";
                     string first = strs[0];

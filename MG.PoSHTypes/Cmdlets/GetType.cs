@@ -29,6 +29,10 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFromPipeline")]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfacesFromPipeline")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("io")]
         public object InputObject { get; set; }
 
@@ -38,21 +42,33 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetMethodsFromName")]
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFromName")]
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfacesFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("t", "Type")]
         public string[] TypeName { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromPipeline")]
         [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
         [Alias("f")]
         public SwitchParameter FullName { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromPipeline")]
         [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromName")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("b")]
         public SwitchParameter BaseType { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromPipeline")]
         [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromName")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("i")]
         public SwitchParameter Interfaces { get; set; }
 
@@ -160,11 +176,22 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("BaseType"))
             {
-                WriteObject(ResolvedTypes.Select(x => x.BaseType), true);
+                if (this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
+                {
+                    base.WriteObject(ResolvedTypes.SelectMany(x => x.BaseType.GetInterfaces()).ToArray(), true);
+                }
+                else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
+                {
+                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.Select(x => x.BaseType).ToArray()), true);
+                }
+                else
+                {
+                    WriteObject(ResolvedTypes.Select(x => x.BaseType), true);
+                }
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
             {
-                WriteObject(ResolvedTypes.SelectMany(x => x.GetInterfaces().Select(i => i.FullName)), true);
+                WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.GetInterfaces()).ToArray()), true);
             }
             else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
             {
