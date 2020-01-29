@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace MG.PowerShell.Types
 {
-    public class PoshProperty : BaseObject
+    public class PoshProperty : BaseObject, IComparable<PoshProperty>
     {
         public PropertyAttributes Attributes { get; private set; }
         public bool CanRead { get; private set; }
@@ -26,6 +26,24 @@ namespace MG.PowerShell.Types
         {
             base.SetProperties(pi);
             base._backingField = pi;
+        }
+
+        public int CompareTo(PoshProperty other)
+        {
+            int retNum = this.Name.CompareTo(other.Name);
+            if (retNum == 0)
+            {
+                string xPropTypeName = this.PropertyType.FullName;
+                string yPropTypeName = other.PropertyType.FullName;
+                retNum = !string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+                    ? xPropTypeName.CompareTo(yPropTypeName)
+                    : string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+                        ? 1
+                        : !string.IsNullOrEmpty(xPropTypeName) && string.IsNullOrEmpty(yPropTypeName)
+                            ? -1
+                            : 0;
+            }
+            return retNum;
         }
 
         public PoshMethod[] GetAccessors()
@@ -54,24 +72,24 @@ namespace MG.PowerShell.Types
         public static implicit operator PropertyInfo(PoshProperty pp) => (PropertyInfo)pp._backingField;
     }
 
-    public class PoshPropertySorter : IComparer<PoshProperty>
-    {
-        public int Compare(PoshProperty x, PoshProperty y)
-        {
-            int retNum = x.Name.CompareTo(y.Name);
-            if (retNum == 0)
-            {
-                string xPropTypeName = x.PropertyType.FullName;
-                string yPropTypeName = y.PropertyType.FullName;
-                retNum = !string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
-                    ? xPropTypeName.CompareTo(yPropTypeName)
-                    : string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
-                        ? 1
-                        : !string.IsNullOrEmpty(xPropTypeName) && string.IsNullOrEmpty(yPropTypeName)
-                            ? -1
-                            : 0;
-            }
-            return retNum;
-        }
-    }
+    //public class PoshPropertySorter : IComparer<PoshProperty>
+    //{
+    //    public int Compare(PoshProperty this, PoshProperty other)
+    //    {
+    //        int retNum = this.Name.CompareTo(other.Name);
+    //        if (retNum == 0)
+    //        {
+    //            string xPropTypeName = this.PropertyType.FullName;
+    //            string yPropTypeName = other.PropertyType.FullName;
+    //            retNum = !string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+    //                ? xPropTypeName.CompareTo(yPropTypeName)
+    //                : string.IsNullOrEmpty(xPropTypeName) && !string.IsNullOrEmpty(yPropTypeName)
+    //                    ? 1
+    //                    : !string.IsNullOrEmpty(xPropTypeName) && string.IsNullOrEmpty(yPropTypeName)
+    //                        ? -1
+    //                        : 0;
+    //        }
+    //        return retNum;
+    //    }
+    //}
 }

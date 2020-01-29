@@ -112,7 +112,7 @@ namespace MG.PowerShell.Types.Cmdlets
                     : InputObject.GetType().FullName;
             }
 
-            IEnumerable<Type> derivedTypes = DerivedType.GetDerivedTypes(BaseType, asses, Recurse.ToBool());
+            List<Type> derivedTypes = DerivedType.GetDerivedTypes(BaseType, asses, Recurse.ToBool());
             WriteObject(derivedTypes, true);
         }
 

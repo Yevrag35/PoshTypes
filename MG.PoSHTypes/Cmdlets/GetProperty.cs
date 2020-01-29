@@ -27,6 +27,11 @@ namespace MG.PowerShell.Types.Cmdlets
     </ItemSelectionCondition>
 </ListItem>";
 
+        private bool _cSharp;
+        private bool _enum;
+        private bool _psForm;
+        private bool _useItemSel;
+
         #endregion
 
         #region PARAMETERS
@@ -52,17 +57,33 @@ namespace MG.PowerShell.Types.Cmdlets
         public BindingFlags[] Flags = new BindingFlags[2] { BindingFlags.Public, BindingFlags.Instance };
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter CSharpFormat { get; set; }
+        public SwitchParameter CSharpFormat
+        {
+            get => _cSharp;
+            set => _cSharp = value;
+        }
 
         [Parameter(Mandatory = false, ParameterSetName = "ByPipelineObject")]
         [Alias("enum")]
-        public SwitchParameter Enumerate { get; set; }
+        public SwitchParameter Enumerate
+        {
+            get => _enum;
+            set => _enum = value;
+        }
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter PSFormatFile { get; set; }
+        public SwitchParameter PSFormatFile
+        {
+            get => _psForm;
+            set => _psForm = value;
+        }
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter UseItemSelectionCondition { get; set; }
+        public SwitchParameter UseItemSelectionCondition
+        {
+            get => _useItemSel;
+            set => _useItemSel = value;
+        }
 
         #endregion
 
@@ -74,7 +95,8 @@ namespace MG.PowerShell.Types.Cmdlets
         }
         protected override void ProcessRecord()
         {
-            if (this.MyInvocation.BoundParameters.ContainsKey("InputObject"))
+            //if (this.MyInvocation.BoundParameters.ContainsKey("InputObject"))
+            if (base.HasParameterSpecified(this, x => x.InputObject))
             {
                 if (InputObject is Type inputType)
                 {
@@ -82,7 +104,7 @@ namespace MG.PowerShell.Types.Cmdlets
                 }
                 else if (InputObject is PSObject psObj)
                 {
-                    if (this.MyInvocation.BoundParameters.ContainsKey("Enumerate") && psObj.ImmediateBaseObject is IEnumerable ienum)
+                    if (_enum && psObj.ImmediateBaseObject is IEnumerable ienum)
                     {
                         list.AddRange(base.GetTypesFromArray(ienum));
                     }
@@ -108,30 +130,32 @@ namespace MG.PowerShell.Types.Cmdlets
 
         protected override void EndProcessing()
         {
-            var props = new List<PoshProperty>();
+            var props = new List<PoshProperty>(list.Count);
             for (int i = 0; i < list.Count; i++)
             {
                 Type t = list[i];
                 IEnumerable<PropertyInfo> typeProps = t.GetProperties(RealFlags);
-                if (this.MyInvocation.BoundParameters.ContainsKey("PropertyName"))
+                //if (this.MyInvocation.BoundParameters.ContainsKey("PropertyName"))
+                if (base.HasParameterSpecified(this, x => x.PropertyName))
                 {
-                    typeProps = typeProps.Where(x => PropertyName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
+                    //typeProps = typeProps.Where(x => PropertyName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
+                    typeProps = base.FilterByStrings(typeProps, x => x.Name, this.PropertyName);
                 }
                 foreach (PropertyInfo pi in typeProps)
                 {
                     props.Add(pi);
                 }
             }
-            props.Sort(new PoshPropertySorter());
+            props.Sort();
 
             Func<PoshProperty, bool> function = this.GetCondition();
             IEnumerable<PoshProperty> finalProps = props.Where(function);
 
-            if (this.MyInvocation.BoundParameters.ContainsKey("CSharpFormat"))
+            if (_cSharp)
             {
                 WriteObject(this.ToCSharpFormat(finalProps), true);
             }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("PSFormatFile"))
+            else if (_psForm)
             {
                 WriteObject(this.ToPSFileFormat(finalProps));
             }
@@ -159,7 +183,7 @@ namespace MG.PowerShell.Types.Cmdlets
             }
         }
 
-        private IEnumerable<PSObject> ToCSharpFormat(IEnumerable<PoshProperty> props)
+        private List<PSObject> ToCSharpFormat(IEnumerable<PoshProperty> props)
         {
             var list = new List<PSObject>();
             foreach (PoshProperty p in props)
@@ -168,7 +192,7 @@ namespace MG.PowerShell.Types.Cmdlets
                 var get = new PSNoteProperty("get;", p.CanRead);
                 var set = new PSNoteProperty("set;", p.CanWrite);
                 var name = new PSNoteProperty("Name", p.Name);
-                var type = new PSNoteProperty("Type", BaseObject.GetTypeAlias(true, p.PropertyType).First());
+                var type = new PSNoteProperty("Type", BaseObject.GetTypeAlias(true, p.PropertyType).FirstOrDefault());
 
                 psObj.Properties.Add(get);
                 psObj.Properties.Add(set);
@@ -182,7 +206,8 @@ namespace MG.PowerShell.Types.Cmdlets
         private string ToPSFileFormat(IEnumerable<PoshProperty> props)
         {
             var list = new List<string>();
-            string format = this.MyInvocation.BoundParameters.ContainsKey("UseItemSelectionCondition")
+            //string format = this.MyInvocation.BoundParameters.ContainsKey("UseItemSelectionCondition")
+            string format = _useItemSel
                 ? LI_ELE_COND
                 : LI_ELE;
 

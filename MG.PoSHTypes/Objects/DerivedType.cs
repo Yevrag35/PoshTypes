@@ -7,7 +7,7 @@ namespace MG.PowerShell.Types
 {
     public static class DerivedType
     {
-        public static IEnumerable<Type> GetDerivedTypes(string baseType, IEnumerable<Assembly> assemblies, bool recurse = true)
+        public static List<Type> GetDerivedTypes(string baseType, IEnumerable<Assembly> assemblies, bool recurse = true)
         {
             var list = new List<Type>();
             foreach (Assembly ass in assemblies)

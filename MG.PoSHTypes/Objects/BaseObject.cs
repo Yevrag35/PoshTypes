@@ -15,8 +15,8 @@ namespace MG.PowerShell.Types
 
         public string Name { get; protected private set; }
 
-        public static IEnumerable<string> GetTypeAlias(bool forPowerShell, params Type[] types) => GetTypeAlias(forPowerShell, types, types.Length);
-        public static IEnumerable<string> GetTypeAlias(bool forPowerShell, IEnumerable<Type> types, int howMany)
+        public static List<string> GetTypeAlias(bool forPowerShell, params Type[] types) => GetTypeAlias(forPowerShell, types, types.Length);
+        public static List<string> GetTypeAlias(bool forPowerShell, IEnumerable<Type> types, int howMany)
         {
             if (types == null)
                 throw new ArgumentNullException("types");
