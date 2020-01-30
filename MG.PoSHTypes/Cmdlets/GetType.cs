@@ -19,75 +19,91 @@ namespace MG.PowerShell.Types.Cmdlets
         private const string SCRIPT = @"param([object]$InputObject,[string]$MemberType,[bool]$Force)
 return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Force);
 ";
+        private bool _finished;
+        private bool _force;
+        private bool _nu;
+
         private List<Type> ResolvedTypes;
         #endregion
 
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetTypeFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetPropertiesFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfacesFromPipeline")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetPropertiesFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
         //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
         //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("io")]
         public object InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetTypeFromName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetFullNameFromName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetPropertiesFromName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetMethodsFromName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFromName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfacesFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetFullNameFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetPropertiesFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetMethodsFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfacesFromName")]
         //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromName")]
         //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromName")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("t", "Type")]
         public string[] TypeName { get; set; }
 
-        [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        [Alias("f")]
-        public SwitchParameter FullName { get; set; }
+        //[Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        //[Alias("f")]
+        //public SwitchParameter FullName { get; set; }
 
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromName")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
-        [Alias("b")]
-        public SwitchParameter BaseType { get; set; }
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromName")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
+        //[Alias("b")]
+        //public SwitchParameter BaseType { get; set; }
 
-        [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromName")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        [Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
-        [Alias("i")]
-        public SwitchParameter Interfaces { get; set; }
+        //[Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromName")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
+        //[Alias("i")]
+        //public SwitchParameter Interfaces { get; set; }
 
-        [Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromPipeline")]
         //[Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromName")]
-        [Alias("p")]
-        public SwitchParameter Properties { get; set; }
+        //[Alias("p")]
+        //public SwitchParameter Properties { get; set; }
 
-        [Parameter(Mandatory = true, ParameterSetName = "GetMethodsFromPipeline")]
+        //[Parameter(Mandatory = true, ParameterSetName = "GetMethodsFromPipeline")]
         //[Parameter(Mandatory = true, ParameterSetName = "GetMethodsFromName")]
+        //[Alias("m")]
+        //public SwitchParameter Methods { get; set; }
+
+        [Parameter(Mandatory = false)]
         [Alias("m")]
-        public SwitchParameter Methods { get; set; }
+        public GetTypeOutput MemberType { get; set; }
 
         [Parameter(Mandatory = false)]
         [Alias("nu")]
-        public SwitchParameter NonUnique { get; set; }
+        public SwitchParameter NonUnique
+        {
+            get => _nu;
+            set => _nu = value;
+        }
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter Force { get; set; }
+        public SwitchParameter Force
+        {
+            get => _force;
+            set => _force = value;
+        }
 
         #endregion
 
@@ -99,103 +115,76 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         protected override void ProcessRecord()
         {
-            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods"))
+            if (base.HasParameterSpecified(this, x => x.InputObject))
             {
-                if (this.ParameterSetName.Contains("Pipeline"))
+                if (InputObject is ScriptBlock sb)
+                    this.ProcessScriptBlock(sb);
+
+                else if (this.InputObject is Type incomingType)
+                    ResolvedTypes.Add(incomingType);
+
+                else if (InputObject is PSObject psObj)
                 {
-                    if (InputObject is ScriptBlock sb)
+                    this.ProcessPSObject(psObj);
+                }
+
+                else if (InputObject is object[] objs)
+                    this.ProcessObjectArray(objs);
+
+                else if (this.MemberType == GetTypeOutput.Properties || this.MemberType == GetTypeOutput.Method)
+                {
+                    base.WriteObject(this.GetMemberCommand(this.InputObject, this.MemberType.ToString(), _force), true);
+                    _finished = true;
+                }
+
+                else
+                    ResolvedTypes.Add(InputObject.GetType());
+            }
+
+            else
+            {
+                foreach (Type t in base.ResolveTypeThroughPowerShell(this.TypeName))
+                {
+                    if (this.MemberType == GetTypeOutput.Properties)
                     {
-                        Collection<PSObject> sbResult = sb.Invoke();
-                        for (int i1 = 0; i1 < sbResult.Count; i1++)
-                        {
-                            PSObject one = sbResult[i1];
-                            if (one.ImmediateBaseObject is Type t)
-                            {
-                                ResolvedTypes.Add(t);
-                            }
-                            else if (one.ImmediateBaseObject is IEnumerable<Type> types)
-                            {
-                                ResolvedTypes.AddRange(types);
-                            }
-                            else if (one.ImmediateBaseObject is string str)
-                            {
-                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
-                            }
-                            else if (one.ImmediateBaseObject is IEnumerable<string> strs)
-                            {
-                                ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs.ToArray()));
-                            }
-                        }
+                        base.WriteObject(t.GetProperties(), true);
+                        _finished = true;
                     }
-                    else if (InputObject is PSObject psObj)
+                    else if (this.MemberType == GetTypeOutput.Method)
                     {
-                        if (psObj.ImmediateBaseObject.GetType().IsArray)
-                        {
-                            foreach (object obj in (IEnumerable)psObj.ImmediateBaseObject)
-                            {
-                                ResolvedTypes.Add(obj.GetType());
-                            }
-                        }
-                        else
-                        {
-                            ResolvedTypes.Add(psObj.ImmediateBaseObject.GetType());
-                        }
-                    }
-                    else if (InputObject is object[])
-                    {
-                        ResolvedTypes.Add(typeof(object[]));
+                        base.WriteObject(t.GetMethods(), true);
+                        _finished = true;
                     }
                     else
-                        ResolvedTypes.Add(InputObject.GetType());
+                        ResolvedTypes.Add(t);
                 }
-                else if (this.MyInvocation.BoundParameters.ContainsKey("TypeName"))
-                {
-                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(TypeName));
-                }
-            }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("Properties"))
-            {
-                WriteObject(this.GetMemberCommand(InputObject, "Properties", Force.ToBool()), true);
-            }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("Methods"))
-            {
-                WriteObject(this.GetMemberCommand(InputObject, "Methods", Force.ToBool()), true);
             }
         }
 
         protected override void EndProcessing()
         {
-            if (!this.MyInvocation.BoundParameters.ContainsKey("NonUnique"))
-                ResolvedTypes = ResolvedTypes.Distinct().ToList();
+            if (!_finished)
+            {
+                if (!_nu)
+                    ResolvedTypes = ResolvedTypes.Distinct().ToList();
 
-            if (!this.MyInvocation.BoundParameters.ContainsKey("Properties") && !this.MyInvocation.BoundParameters.ContainsKey("Methods")
-                && !this.MyInvocation.BoundParameters.ContainsKey("FullName") && !this.MyInvocation.BoundParameters.ContainsKey("BaseType")
-                && !this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
-            {
-                WriteObject(ResolvedTypes, true);
-            }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("BaseType"))
-            {
-                if (this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
-                {
-                    base.WriteObject(ResolvedTypes.SelectMany(x => x.BaseType.GetInterfaces()).ToArray(), true);
-                }
-                else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
-                {
-                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.Select(x => x.BaseType).ToArray()), true);
-                }
-                else
-                {
-                    WriteObject(ResolvedTypes.Select(x => x.BaseType), true);
-                }
-            }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("Interfaces"))
-            {
-                WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.GetInterfaces()).ToArray()), true);
-            }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("FullName"))
-            {
-                WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.ToArray()));
+                if (!base.HasParameterSpecified(this, x => x.MemberType))
+                    base.WriteObject(ResolvedTypes, true);
+
+                else if (this.MemberType == GetTypeOutput.Interfaces)
+                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.GetInterfaces()), ResolvedTypes.Count), true);
+
+                else if (this.MemberType == GetTypeOutput.FullName)
+                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes, ResolvedTypes.Count), true);
+
+                else if (this.MemberType == GetTypeOutput.BaseType)
+                    base.WriteObject(ResolvedTypes.Select(x => x.BaseType), true);
+
+                else if (this.MemberType == GetTypeOutput.BaseTypeFullName)
+                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.Select(x => x.BaseType), ResolvedTypes.Count), true);
+
+                else if (this.MemberType == GetTypeOutput.BaseTypeInterfaces)
+                    base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.BaseType.GetInterfaces()), ResolvedTypes.Count), true);
             }
         }
 
@@ -218,6 +207,70 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 return col;
             }
         }
+
+        #region PROCESSORS
+        private void ProcessObjectArray(params object[] objs)
+        {
+            for (int i = 0; i < objs.Length; i++)
+            {
+                object o = objs[i];
+                if (o != null)
+                {
+                    if (o is Type t)
+                        ResolvedTypes.Add(t);
+
+                    else
+                        ResolvedTypes.Add(o.GetType());
+                }
+            }
+        }
+        private void ProcessPSObject(PSObject pso)
+        {
+            if (pso.ImmediateBaseObject is IEnumerable ienum && !(pso.ImmediateBaseObject is string))
+            {
+                foreach (object o in ienum)
+                {
+                    ResolvedTypes.Add(o.GetType());
+                }
+            }
+            else if (pso.ImmediateBaseObject is Type t)
+                ResolvedTypes.Add(t);
+
+            else
+                ResolvedTypes.Add(pso.ImmediateBaseObject.GetType());
+            
+        }
+        private void ProcessScriptBlock(ScriptBlock sb)
+        {
+            Collection<PSObject> sbResult = sb.Invoke();
+            for (int i1 = 0; i1 < sbResult.Count; i1++)
+            {
+                PSObject one = sbResult[i1];
+                if (one.ImmediateBaseObject is Type t)
+                {
+                    ResolvedTypes.Add(t);
+                }
+                else if (one.ImmediateBaseObject is IEnumerable<string> strs)
+                {
+                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs.ToArray()));
+                }
+                //else if (one.ImmediateBaseObject is IEnumerable<Type> types)
+                else if (one.ImmediateBaseObject is IEnumerable ienum)
+                {
+                    foreach (object o in ienum)
+                    {
+                        if (o is Type oType)
+                            ResolvedTypes.Add(oType);
+                    }
+                }
+                else if (one.ImmediateBaseObject is string str)
+                {
+                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
     }
