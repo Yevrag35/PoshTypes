@@ -1,4 +1,5 @@
 ﻿using MG.Dynamic;
+using Microsoft.PowerShell.Commands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,63 +29,12 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetTypeFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetPropertiesFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetMethodsFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("io")]
         public object InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetTypeFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetFullNameFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetPropertiesFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetMethodsFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfacesFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetBaseTypeInterfacesFromName")]
         [Alias("t", "Type")]
         public string[] TypeName { get; set; }
-
-        //[Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        //[Alias("f")]
-        //public SwitchParameter FullName { get; set; }
-
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFromName")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeFullNameFromName")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
-        //[Alias("b")]
-        //public SwitchParameter BaseType { get; set; }
-
-        //[Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetInterfacesFromName")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetBaseTypeInterfacesFromName")]
-        //[Alias("i")]
-        //public SwitchParameter Interfaces { get; set; }
-
-        //[Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetPropertiesFromName")]
-        //[Alias("p")]
-        //public SwitchParameter Properties { get; set; }
-
-        //[Parameter(Mandatory = true, ParameterSetName = "GetMethodsFromPipeline")]
-        //[Parameter(Mandatory = true, ParameterSetName = "GetMethodsFromName")]
-        //[Alias("m")]
-        //public SwitchParameter Methods { get; set; }
 
         [Parameter(Mandatory = false)]
         [Alias("m")]
@@ -192,20 +142,34 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         #region BACKEND METHODS
 
-        private IEnumerable<object> GetMemberCommand(object pipedObject, string memberType, bool force)
+        private IEnumerable<MemberDefinition> GetMemberCommand(object pipedObject, string memberType, bool force)
         {
-            var dict = new Dictionary<string, object>
+            var cmdlet = new GetMemberCommand
+            {
+                Force = force,
+                InputObject = PSObject.AsPSObject(pipedObject),
+                MemberType = (PSMemberTypes)Enum.Parse(typeof(PSMemberTypes), memberType)
+            };
+            return cmdlet.Invoke<MemberDefinition>();
+            
+            //IDictionary dict = this.NewGetMemberParameters(pipedObject, memberType, force);
+
+            //using (var ps = System.Management.Automation.PowerShell.Create().AddScript(SCRIPT).AddParameters(dict))
+            //{
+            //    Collection<PSObject> col = ps.Invoke();
+            //    return col;
+            //}
+        }
+
+        private IDictionary NewGetMemberParameters(object pipedObject, string memberType, bool force)
+        {
+            //var cmdlet = new GetMemberCommand();
+            return new Dictionary<string, object>
             {
                 { "InputObject", pipedObject },
                 { "MemberType", memberType },
                 { "Force", force }
             };
-
-            using (var ps = System.Management.Automation.PowerShell.Create().AddScript(SCRIPT).AddParameters(dict))
-            {
-                var col = ps.Invoke();
-                return col;
-            }
         }
 
         #region PROCESSORS
@@ -266,6 +230,10 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 else if (one.ImmediateBaseObject is string str)
                 {
                     ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
+                }
+                else
+                {
+                    ResolvedTypes.Add(one.ImmediateBaseObject.GetType());
                 }
             }
         }
