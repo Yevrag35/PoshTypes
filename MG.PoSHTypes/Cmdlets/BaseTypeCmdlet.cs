@@ -44,17 +44,17 @@ namespace MG.PowerShell.Types
         }
 
         #region PARAMETER VALIDATION
-        public bool HasParameterSpecified<T, U>(T cmdlet, Expression<Func<T, U>> cmdletParameterExpression) where T : PSCmdlet
-        {
-            bool result = false;
-            if (cmdletParameterExpression.Body is MemberExpression memEx)
-                result = cmdlet.MyInvocation.BoundParameters.ContainsKey(memEx.Member.Name);
+        //public bool HasParameterSpecified<T, U>(T cmdlet, Expression<Func<T, U>> cmdletParameterExpression) where T : PSCmdlet
+        //{
+        //    bool result = false;
+        //    if (cmdletParameterExpression.Body is MemberExpression memEx)
+        //        result = cmdlet.MyInvocation.BoundParameters.ContainsKey(memEx.Member.Name);
 
-            else if (cmdletParameterExpression.Body is UnaryExpression unEx && unEx.Operand is MemberExpression unMemEx)
-                result = cmdlet.MyInvocation.BoundParameters.ContainsKey(unMemEx.Member.Name);
+        //    else if (cmdletParameterExpression.Body is UnaryExpression unEx && unEx.Operand is MemberExpression unMemEx)
+        //        result = cmdlet.MyInvocation.BoundParameters.ContainsKey(unMemEx.Member.Name);
 
-            return result;
-        }
+        //    return result;
+        //}
 
         #endregion
 

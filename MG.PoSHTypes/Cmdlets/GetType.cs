@@ -1,4 +1,6 @@
 ﻿using MG.Dynamic;
+using MG.Posh.Extensions.Bound;
+using MG.Posh.Extensions.Pipe;
 using Microsoft.PowerShell.Commands;
 using System;
 using System.Collections;
@@ -30,7 +32,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetTypeFromPipeline")]
         [Alias("io")]
-        public object InputObject { get; set; }
+        public PSObject InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetTypeFromName")]
         [Alias("t", "Type")]
@@ -65,20 +67,15 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         protected override void ProcessRecord()
         {
-            if (base.HasParameterSpecified(this, x => x.InputObject))
+            if (this.ContainsParameter(x => x.InputObject))
             {
-                if (InputObject is ScriptBlock sb)
+                if (this.InputObject.BaseObject is ScriptBlock sb)
                     this.ProcessScriptBlock(sb);
 
-                else if (this.InputObject is Type incomingType)
+                else if (this.InputObject.BaseObject is Type incomingType)
                     ResolvedTypes.Add(incomingType);
 
-                else if (InputObject is PSObject psObj)
-                {
-                    this.ProcessPSObject(psObj);
-                }
-
-                else if (InputObject is object[] objs)
+                else if (this.InputObject.ImmediateBaseObject is object[] objs)
                     this.ProcessObjectArray(objs);
 
                 else if (this.MemberType == GetTypeOutput.Properties || this.MemberType == GetTypeOutput.Method)
@@ -87,8 +84,12 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                     _finished = true;
                 }
 
-                else
-                    ResolvedTypes.Add(InputObject.GetType());
+                else //if (InputObject.BaseObject is PSObject psObj)
+                {
+                    ResolvedTypes.Add(this.InputObject.ImmediateBaseObject.GetType());
+                }
+                //else
+                    //ResolvedTypes.Add(InputObject.GetType());
             }
 
             else
@@ -118,7 +119,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 if (!_nu)
                     ResolvedTypes = ResolvedTypes.Distinct().ToList();
 
-                if (!base.HasParameterSpecified(this, x => x.MemberType))
+                if ( ! this.ContainsParameter(x => x.MemberType))
                     base.WriteObject(ResolvedTypes, true);
 
                 else if (this.MemberType == GetTypeOutput.Interfaces)
@@ -151,25 +152,6 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 MemberType = (PSMemberTypes)Enum.Parse(typeof(PSMemberTypes), memberType)
             };
             return cmdlet.Invoke<MemberDefinition>();
-            
-            //IDictionary dict = this.NewGetMemberParameters(pipedObject, memberType, force);
-
-            //using (var ps = System.Management.Automation.PowerShell.Create().AddScript(SCRIPT).AddParameters(dict))
-            //{
-            //    Collection<PSObject> col = ps.Invoke();
-            //    return col;
-            //}
-        }
-
-        private IDictionary NewGetMemberParameters(object pipedObject, string memberType, bool force)
-        {
-            //var cmdlet = new GetMemberCommand();
-            return new Dictionary<string, object>
-            {
-                { "InputObject", pipedObject },
-                { "MemberType", memberType },
-                { "Force", force }
-            };
         }
 
         #region PROCESSORS

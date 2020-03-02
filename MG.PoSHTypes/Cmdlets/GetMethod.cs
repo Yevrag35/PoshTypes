@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MG.Posh.Extensions.Bound;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ namespace MG.PowerShell.Types.Cmdlets
     public class GetMethod : BaseTypeCmdlet
     {
         #region FIELDS/CONSTANTS
+        private bool _force;
         private List<Type> list;
         private BindingFlags realFlags;
 
@@ -40,7 +42,11 @@ namespace MG.PowerShell.Types.Cmdlets
         public BindingFlags[] Flags = new BindingFlags[2] { BindingFlags.Public, BindingFlags.Instance };
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter Force { get; set; }
+        public SwitchParameter Force
+        {
+            get => _force;
+            set => _force = value;
+        }
 
         #endregion
 
@@ -68,14 +74,15 @@ namespace MG.PowerShell.Types.Cmdlets
             {
                 Type t = list[i];
                 IEnumerable<MethodInfo> allMethods = t.GetMethods(realFlags);
-                if (this.MyInvocation.BoundParameters.ContainsKey("MethodName"))
+                if (this.ContainsParameter(x => x.MethodName))
                 {
                     allMethods = allMethods.Where(x => MethodName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
                 }
-                else if (!this.MyInvocation.BoundParameters.ContainsKey("Force"))
+                else if (!_force)
                 {
                     allMethods = allMethods.Where(x => !x.Name.Contains("_"));
                 }
+
                 foreach (MethodInfo mi in allMethods)
                 {
                     outList.Add(mi);
@@ -85,11 +92,6 @@ namespace MG.PowerShell.Types.Cmdlets
 
             WriteObject(outList, true);
         }
-
-        #endregion
-
-        #region BACKEND METHODS
-
 
         #endregion
     }

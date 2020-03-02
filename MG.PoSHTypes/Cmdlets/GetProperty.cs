@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MG.Posh.Extensions.Bound;
+using MG.Posh.Extensions.Pipe;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,8 +97,7 @@ namespace MG.PowerShell.Types.Cmdlets
         }
         protected override void ProcessRecord()
         {
-            //if (this.MyInvocation.BoundParameters.ContainsKey("InputObject"))
-            if (base.HasParameterSpecified(this, x => x.InputObject))
+            if (this.ContainsParameter(x => x.InputObject))
             {
                 if (InputObject is Type inputType)
                 {
@@ -135,10 +136,8 @@ namespace MG.PowerShell.Types.Cmdlets
             {
                 Type t = list[i];
                 IEnumerable<PropertyInfo> typeProps = t.GetProperties(RealFlags);
-                //if (this.MyInvocation.BoundParameters.ContainsKey("PropertyName"))
-                if (base.HasParameterSpecified(this, x => x.PropertyName))
+                if (this.ContainsParameter(x => x.PropertyName))
                 {
-                    //typeProps = typeProps.Where(x => PropertyName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
                     typeProps = base.FilterByStrings(typeProps, x => x.Name, this.PropertyName);
                 }
                 foreach (PropertyInfo pi in typeProps)

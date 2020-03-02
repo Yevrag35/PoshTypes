@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using MG.Posh.Extensions.Bound;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -26,7 +26,7 @@ namespace MG.PowerShell.Types.Cmdlets
         [Parameter(Mandatory = false, Position = 1, ParameterSetName = "NonPipeline")]
         [Parameter(Mandatory = false, Position = 0, ParameterSetName = "ViaPipeline")]
         [Alias("Name", "n")]
-        public string[] ParameterdName { get; set; }
+        public string[] ParameterName { get; set; }
 
         #endregion
 
@@ -36,9 +36,9 @@ namespace MG.PowerShell.Types.Cmdlets
         protected override void ProcessRecord()
         {
             IEnumerable<ParameterInfo> allParams = Method.GetParameters();
-            if (this.MyInvocation.BoundParameters.ContainsKey("MethodName"))
+            if (this.ContainsParameter(x => x.Method))
             {
-                allParams = allParams.Where(x => ParameterdName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
+                allParams = allParams.Where(x => ParameterName.Any(n => n.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)));
             }
             foreach (PoshMethodParameter pmp in allParams)
             {

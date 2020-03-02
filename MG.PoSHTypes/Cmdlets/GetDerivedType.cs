@@ -1,4 +1,5 @@
 ﻿using MG.Dynamic;
+using MG.Posh.Extensions.Bound;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -105,7 +106,7 @@ namespace MG.PowerShell.Types.Cmdlets
 
         protected override void ProcessRecord()
         {
-            if (this.MyInvocation.BoundParameters.ContainsKey("InputObject"))
+            if (this.ContainsParameter(x => x.InputObject))
             {
                 BaseType = InputObject is Type type 
                     ? type.FullName 
