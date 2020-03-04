@@ -93,7 +93,7 @@ namespace MG.PowerShell.Types.Cmdlets
         {
             if (this.ContainsParameter(x => x.InputObject))
             {
-
+                this.ProcessInputObject(this.InputObject);
             }
             else
             {
@@ -105,20 +105,24 @@ namespace MG.PowerShell.Types.Cmdlets
         {
             if (ResolvedTypes.Count > 0)
             {
+                IEnumerable<Type> types = ResolvedTypes.Distinct();
+                if (_nu)
+                    types = ResolvedTypes;
+
                 if (this.ContainsAnyParameters(x => x.ShowInterfaces, x => x.ShowFullName))
                 {
                     if (this.ContainsParameter(x => x.ShowFullName))
                     {
-                        base.WriteObject(ResolvedTypes.Select(x => x.FullName), true);
+                        base.WriteObject(types.Select(x => x.FullName), true);
                     }
                     else
                     {
-                        base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.GetInterfaces()), ResolvedTypes.Count), true);
+                        base.WriteObject(BaseObject.GetTypeAlias(true, types.SelectMany(x => x.GetInterfaces()), types.Count()), true);
                     }
                 }
                 else
                 {
-                    base.WriteObject(ResolvedTypes, true);
+                    base.WriteObject(types, true);
                 }
             }
         }
@@ -213,7 +217,6 @@ namespace MG.PowerShell.Types.Cmdlets
         //    return cmdlet.Invoke<MemberDefinition>();
         //}
 
-        #region PROCESSORS
         private void AddStringTypesToResolved(string[] names)
         {
             foreach (Type t in base.ResolveTypeThroughPowerShell(names))
@@ -221,37 +224,52 @@ namespace MG.PowerShell.Types.Cmdlets
                 ResolvedTypes.Add(t);
             }
         }
-        private void ProcessObjectArray(params object[] objs)
-        {
-            for (int i = 0; i < objs.Length; i++)
-            {
-                object o = objs[i];
-                if (o != null)
-                {
-                    if (o is Type t)
-                        ResolvedTypes.Add(t);
 
-                    else
-                        ResolvedTypes.Add(o.GetType());
-                }
-            }
-        }
-        private void ProcessPSObject(PSObject pso)
-        {
-            if (pso.ImmediateBaseObject is IEnumerable ienum && !(pso.ImmediateBaseObject is string))
-            {
-                foreach (object o in ienum)
-                {
-                    ResolvedTypes.Add(o.GetType());
-                }
-            }
-            else if (pso.ImmediateBaseObject is Type t)
-                ResolvedTypes.Add(t);
+        #region PROCESSORS
 
+        private void ProcessInputObject(PSObject input)
+        {
+            if (input.ImmediateBaseObject is Type incomingType)
+            {
+                ResolvedTypes.Add(incomingType);
+            }
             else
-                ResolvedTypes.Add(pso.ImmediateBaseObject.GetType());
-            
+            {
+                ResolvedTypes.Add(input.ImmediateBaseObject.GetType());
+            }
         }
+
+        //private void ProcessObjectArray(params object[] objs)
+        //{
+        //    for (int i = 0; i < objs.Length; i++)
+        //    {
+        //        object o = objs[i];
+        //        if (o != null)
+        //        {
+        //            if (o is Type t)
+        //                ResolvedTypes.Add(t);
+
+        //            else
+        //                ResolvedTypes.Add(o.GetType());
+        //        }
+        //    }
+        //}
+        //private void ProcessPSObject(PSObject pso)
+        //{
+        //    if (pso.ImmediateBaseObject is IEnumerable ienum && !(pso.ImmediateBaseObject is string))
+        //    {
+        //        foreach (object o in ienum)
+        //        {
+        //            ResolvedTypes.Add(o.GetType());
+        //        }
+        //    }
+        //    else if (pso.ImmediateBaseObject is Type t)
+        //        ResolvedTypes.Add(t);
+
+        //    else
+        //        ResolvedTypes.Add(pso.ImmediateBaseObject.GetType());
+            
+        //}
         //private void ProcessScriptBlock(ScriptBlock sb)
         //{
         //    Collection<PSObject> sbResult = sb.Invoke();
