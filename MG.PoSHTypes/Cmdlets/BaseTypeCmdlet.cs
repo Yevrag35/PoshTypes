@@ -12,7 +12,8 @@ namespace MG.PowerShell.Types
 {
     public abstract class BaseTypeCmdlet : PSCmdlet
     {
-        private const string SCRIPT = "[type]$type = [{0}]; return $type";
+        //private const string SCRIPT = "[type]$type = [{0}]; return $type";
+        private const string SCRIPT = "[{0}]";
 
         public static readonly Dictionary<string, Type> AliasTable = new Dictionary<string, Type>
         {
@@ -90,7 +91,7 @@ namespace MG.PowerShell.Types
 
         protected private List<Type> ResolveType(IEnumerable<string> typeNames)
         {
-            var Assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            //var Assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var types = new List<Type>();
             foreach (string name in typeNames)
             {
@@ -110,12 +111,18 @@ namespace MG.PowerShell.Types
         }
         protected private List<Type> ResolveTypeThroughPowerShell(params string[] typeNames)
         {
-            var types = new List<Type>(typeNames.Length);
+            //var types = new List<Type>(typeNames.Length);
+            List<Type> types = null;
+            string[] typeScript = new string[typeNames.Length];
             for (int i = 0; i < typeNames.Length; i++)
             {
-                string name = typeNames[i];
-                var psScript = string.Format(SCRIPT, name);
-                using (var ps = System.Management.Automation.PowerShell.Create().AddScript(psScript))
+                typeScript[i] = string.Format(SCRIPT, typeNames[i]);
+            }
+            if (typeScript.Length > 0)
+            {
+                types = new List<Type>(typeNames.Length);
+                string oneScript = string.Join(Environment.NewLine, typeScript);
+                using (var ps = System.Management.Automation.PowerShell.Create().AddScript(oneScript))
                 {
                     Collection<Type> output = ps.Invoke<Type>();
                     types.AddRange(output);

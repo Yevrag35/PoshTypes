@@ -12,18 +12,20 @@ using System.Reflection;
 
 namespace MG.PowerShell.Types.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "Type", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "GetTypeFromPipeline")]
+    [Cmdlet(VerbsCommon.Get, "Type", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "GetTypeFromName")]
     [Alias("gt")]
     [OutputType(typeof(Type))]
     [CmdletBinding(PositionalBinding = false)]
     public class GetType : BaseTypeCmdlet
     {
         #region FIELDS/CONSTANTS
-        private const string SCRIPT = @"param([object]$InputObject,[string]$MemberType,[bool]$Force)
-return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Force);
-";
+//        private const string SCRIPT = @"param([object]$InputObject,[string]$MemberType,[bool]$Force)
+//return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Force);
+//";
         private bool _finished;
-        private bool _force;
+        //private bool _force;
+        private bool _full;
+        private bool _int;
         private bool _nu;
 
         private List<Type> ResolvedTypes;
@@ -31,31 +33,53 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
 
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetTypeFromPipeline")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetFullNameFromPipeline")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "GetInterfaceFromPipeline")]
         [Alias("io")]
         public PSObject InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetTypeFromName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetFullNameFromName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "GetInterfaceFromName")]
         [Alias("t", "Type")]
         public string[] TypeName { get; set; }
 
-        [Parameter(Mandatory = false)]
-        [Alias("m")]
-        public GetTypeOutput MemberType { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetFullNameFromName")]
+        [Alias("f")]
+        public SwitchParameter ShowFullName
+        {
+            get => _full;
+            set => _full = value;
+        }
+
+        [Parameter(Mandatory = true, ParameterSetName = "GetInterfaceFromPipeline")]
+        [Parameter(Mandatory = true, ParameterSetName = "GetInterfaceFromName")]
+        [Alias("i")]
+        public SwitchParameter ShowInterfaces
+        {
+            get => _int;
+            set => _int = value;
+        }
+
+        //[Parameter(Mandatory = false)]
+        //[Alias("m")]
+        //public GetTypeOutput MemberType { get; set; }
 
         [Parameter(Mandatory = false)]
-        [Alias("nu")]
+        [Alias("nu", "ShowAllTypes")]
         public SwitchParameter NonUnique
         {
             get => _nu;
             set => _nu = value;
         }
 
-        [Parameter(Mandatory = false)]
-        public SwitchParameter Force
-        {
-            get => _force;
-            set => _force = value;
-        }
+        //[Parameter(Mandatory = false)]
+        //public SwitchParameter Force
+        //{
+        //    get => _force;
+        //    set => _force = value;
+        //}
 
         #endregion
 
@@ -65,6 +89,40 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
             ResolvedTypes = new List<Type>();
         }
 
+        protected override void ProcessRecord()
+        {
+            if (this.ContainsParameter(x => x.InputObject))
+            {
+
+            }
+            else
+            {
+                this.AddStringTypesToResolved(this.TypeName);
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (ResolvedTypes.Count > 0)
+            {
+                if (this.ContainsAnyParameters(x => x.ShowInterfaces, x => x.ShowFullName))
+                {
+                    if (this.ContainsParameter(x => x.ShowFullName))
+                    {
+                        base.WriteObject(ResolvedTypes.Select(x => x.FullName), true);
+                    }
+                    else
+                    {
+                        base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.GetInterfaces()), ResolvedTypes.Count), true);
+                    }
+                }
+                else
+                {
+                    base.WriteObject(ResolvedTypes, true);
+                }
+            }
+        }
+        /*
         protected override void ProcessRecord()
         {
             if (this.ContainsParameter(x => x.InputObject))
@@ -111,6 +169,7 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 }
             }
         }
+        
 
         protected override void EndProcessing()
         {
@@ -138,23 +197,30 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                     base.WriteObject(BaseObject.GetTypeAlias(true, ResolvedTypes.SelectMany(x => x.BaseType.GetInterfaces()), ResolvedTypes.Count), true);
             }
         }
-
+        */
         #endregion
 
         #region BACKEND METHODS
 
-        private IEnumerable<MemberDefinition> GetMemberCommand(object pipedObject, string memberType, bool force)
-        {
-            var cmdlet = new GetMemberCommand
-            {
-                Force = force,
-                InputObject = PSObject.AsPSObject(pipedObject),
-                MemberType = (PSMemberTypes)Enum.Parse(typeof(PSMemberTypes), memberType)
-            };
-            return cmdlet.Invoke<MemberDefinition>();
-        }
+        //private IEnumerable<MemberDefinition> GetMemberCommand(object pipedObject, string memberType, bool force)
+        //{
+        //    var cmdlet = new GetMemberCommand
+        //    {
+        //        Force = force,
+        //        InputObject = PSObject.AsPSObject(pipedObject),
+        //        MemberType = (PSMemberTypes)Enum.Parse(typeof(PSMemberTypes), memberType)
+        //    };
+        //    return cmdlet.Invoke<MemberDefinition>();
+        //}
 
         #region PROCESSORS
+        private void AddStringTypesToResolved(string[] names)
+        {
+            foreach (Type t in base.ResolveTypeThroughPowerShell(names))
+            {
+                ResolvedTypes.Add(t);
+            }
+        }
         private void ProcessObjectArray(params object[] objs)
         {
             for (int i = 0; i < objs.Length; i++)
@@ -186,39 +252,39 @@ return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Fo
                 ResolvedTypes.Add(pso.ImmediateBaseObject.GetType());
             
         }
-        private void ProcessScriptBlock(ScriptBlock sb)
-        {
-            Collection<PSObject> sbResult = sb.Invoke();
-            for (int i1 = 0; i1 < sbResult.Count; i1++)
-            {
-                PSObject one = sbResult[i1];
-                if (one.ImmediateBaseObject is Type t)
-                {
-                    ResolvedTypes.Add(t);
-                }
-                else if (one.ImmediateBaseObject is IEnumerable<string> strs)
-                {
-                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs.ToArray()));
-                }
-                //else if (one.ImmediateBaseObject is IEnumerable<Type> types)
-                else if (one.ImmediateBaseObject is IEnumerable ienum)
-                {
-                    foreach (object o in ienum)
-                    {
-                        if (o is Type oType)
-                            ResolvedTypes.Add(oType);
-                    }
-                }
-                else if (one.ImmediateBaseObject is string str)
-                {
-                    ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
-                }
-                else
-                {
-                    ResolvedTypes.Add(one.ImmediateBaseObject.GetType());
-                }
-            }
-        }
+        //private void ProcessScriptBlock(ScriptBlock sb)
+        //{
+        //    Collection<PSObject> sbResult = sb.Invoke();
+        //    for (int i1 = 0; i1 < sbResult.Count; i1++)
+        //    {
+        //        PSObject one = sbResult[i1];
+        //        if (one.ImmediateBaseObject is Type t)
+        //        {
+        //            ResolvedTypes.Add(t);
+        //        }
+        //        else if (one.ImmediateBaseObject is IEnumerable<string> strs)
+        //        {
+        //            ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(strs.ToArray()));
+        //        }
+        //        //else if (one.ImmediateBaseObject is IEnumerable<Type> types)
+        //        else if (one.ImmediateBaseObject is IEnumerable ienum)
+        //        {
+        //            foreach (object o in ienum)
+        //            {
+        //                if (o is Type oType)
+        //                    ResolvedTypes.Add(oType);
+        //            }
+        //        }
+        //        else if (one.ImmediateBaseObject is string str)
+        //        {
+        //            ResolvedTypes.AddRange(base.ResolveTypeThroughPowerShell(str));
+        //        }
+        //        else
+        //        {
+        //            ResolvedTypes.Add(one.ImmediateBaseObject.GetType());
+        //        }
+        //    }
+        //}
 
         #endregion
 
