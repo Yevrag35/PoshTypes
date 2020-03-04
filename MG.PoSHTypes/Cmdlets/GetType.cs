@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
-using System.Reflection;
 
 namespace MG.PowerShell.Types.Cmdlets
 {
@@ -19,10 +18,7 @@ namespace MG.PowerShell.Types.Cmdlets
     public class GetType : BaseTypeCmdlet
     {
         #region FIELDS/CONSTANTS
-//        private const string SCRIPT = @"param([object]$InputObject,[string]$MemberType,[bool]$Force)
-//return $(Get-Member -InputObject $InputObject -MemberType $MemberType -Force:$Force);
-//";
-        private bool _finished;
+        //private bool _finished;
         //private bool _force;
         private bool _full;
         private bool _int;
@@ -93,11 +89,11 @@ namespace MG.PowerShell.Types.Cmdlets
         {
             if (this.ContainsParameter(x => x.InputObject))
             {
-                this.ProcessInputObject(this.InputObject);
+                this.ProcessInputObject(this.InputObject, ref ResolvedTypes);
             }
             else
             {
-                this.AddStringTypesToResolved(this.TypeName);
+                this.AddStringTypesToResolved(this.TypeName, ref ResolvedTypes);
             }
         }
 
@@ -217,27 +213,7 @@ namespace MG.PowerShell.Types.Cmdlets
         //    return cmdlet.Invoke<MemberDefinition>();
         //}
 
-        private void AddStringTypesToResolved(string[] names)
-        {
-            foreach (Type t in base.ResolveTypeThroughPowerShell(names))
-            {
-                ResolvedTypes.Add(t);
-            }
-        }
-
         #region PROCESSORS
-
-        private void ProcessInputObject(PSObject input)
-        {
-            if (input.ImmediateBaseObject is Type incomingType)
-            {
-                ResolvedTypes.Add(incomingType);
-            }
-            else
-            {
-                ResolvedTypes.Add(input.ImmediateBaseObject.GetType());
-            }
-        }
 
         //private void ProcessObjectArray(params object[] objs)
         //{

@@ -89,6 +89,26 @@ namespace MG.PowerShell.Types
 
         #endregion
 
+        protected private void AddStringTypesToResolved(string[] names, ref List<Type> ResolvedTypes)
+        {
+            foreach (Type t in this.ResolveTypeThroughPowerShell(names))
+            {
+                ResolvedTypes.Add(t);
+            }
+        }
+
+        protected private void ProcessInputObject(PSObject input, ref List<Type> ResolvedTypes)
+        {
+            if (input.ImmediateBaseObject is Type incomingType)
+            {
+                ResolvedTypes.Add(incomingType);
+            }
+            else
+            {
+                ResolvedTypes.Add(input.ImmediateBaseObject.GetType());
+            }
+        }
+
         protected private List<Type> ResolveType(IEnumerable<string> typeNames)
         {
             //var Assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
