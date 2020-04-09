@@ -25,7 +25,7 @@ namespace MG.Posh.Types.Cmdlets
 
         #region PARAMETERS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "InputObjectFromPipeline", DontShow = true)]
-        public object InputObject { get; set; }
+        public PSObject InputObject { get; set; }
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "FromTypeName")]
         public string BaseType { get; set; }
@@ -108,9 +108,9 @@ namespace MG.Posh.Types.Cmdlets
         {
             if (this.ContainsParameter(x => x.InputObject))
             {
-                BaseType = InputObject is Type type 
+                BaseType = InputObject.ImmediateBaseObject is Type type 
                     ? type.FullName 
-                    : InputObject.GetType().FullName;
+                    : InputObject.ImmediateBaseObject.GetType().FullName;
             }
 
             List<Type> derivedTypes = DerivedType.GetDerivedTypes(BaseType, asses, Recurse.ToBool());

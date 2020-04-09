@@ -1,6 +1,6 @@
 ﻿using MG.Posh.Extensions.Bound;
 using MG.Posh.Extensions.Pipe;
-using MG.Po
+using MG.Posh.Types.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,7 +139,7 @@ namespace MG.Posh.Types.Cmdlets
                 IEnumerable<PropertyInfo> typeProps = t.GetProperties(RealFlags);
                 if (this.ContainsParameter(x => x.PropertyName))
                 {
-                    typeProps = base.FilterByStrings(typeProps, x => x.Name, this.PropertyName);
+                    typeProps = typeProps.FilterByStrings(x => x.Name, this.PropertyName);
                 }
                 foreach (PropertyInfo pi in typeProps)
                 {

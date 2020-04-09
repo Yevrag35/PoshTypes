@@ -39,26 +39,6 @@ namespace MG.Posh.Types
                 }
                 strs.Sort();
                 return strs;
-                //if (strs.Count == howMany)
-                //{
-                //    return strs;
-                //}
-                //else if (strs.Count > 1 && howMany == 1)
-                //{
-                //    string fullFormat = "{0}[{1}]";
-                //    string first = strs[0];
-                //    Match regEx = Regex.Match(first, @"^(.{1,})\[");
-                //    if (!regEx.Success)
-                //        return null;
-
-                //    string firstPart = regEx.Groups[1].Value;
-                //    string formattedRest = string.Join(", ", strs.Skip(1));
-                //    strs.Clear();
-                //    strs.Add(string.Format(fullFormat, firstPart, formattedRest));
-                //    return strs;
-                //}
-                //else
-                //    return null;
             }
         }
 
@@ -73,7 +53,7 @@ namespace MG.Posh.Types
             for (int i = 0; i < thisProps.Length; i++)
             {
                 var prop = thisProps[i];
-                foreach (var thatProp in origProps)
+                foreach (PropertyInfo thatProp in origProps)
                 {
                     if (thatProp.Name.Equals(prop.Name))
                     {
