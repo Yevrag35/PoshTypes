@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MG.PowerShell.Types
+namespace MG.Posh.Types
 {
     public class PoshProperty : BaseObject, IComparable<PoshProperty>
     {

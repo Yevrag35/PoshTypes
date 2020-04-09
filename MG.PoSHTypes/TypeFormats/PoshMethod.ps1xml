@@ -4,7 +4,7 @@
         <View>
             <Name>PoshMethod</Name>
             <ViewSelectedBy>
-                <TypeName>MG.PowerShell.Types.PoshMethod</TypeName>
+                <TypeName>MG.Posh.Types.PoshMethod</TypeName>
             </ViewSelectedBy>
             <ListControl>
                 <ListEntries>
@@ -32,17 +32,17 @@
                             <ListItem>
                                 <Label>Returns</Label>
                                 <!-- <PropertyName>ReturnType</PropertyName> -->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReturnType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.ReturnType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeDeclared</Label>
                                 <!--<PropertyName>DeclaringType</PropertyName>-->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeReflected</Label>
                                 <!--<PropertyName>ReflectedType</PropertyName>-->
-								<ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
+								<ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
                             </ListItem>
                         </ListItems>
                     </ListEntry>

@@ -4,7 +4,7 @@
         <View>
             <Name>PoshMethodParameter</Name>
             <ViewSelectedBy>
-                <TypeName>MG.PowerShell.Types.PoshMethodParameter</TypeName>
+                <TypeName>MG.Posh.Types.PoshMethodParameter</TypeName>
             </ViewSelectedBy>
             <TableControl>
                 <TableHeaders>
@@ -38,7 +38,7 @@
                             </TableColumnItem>
                             <TableColumnItem>
                                 <!-- <PropertyName>ParameterType</PropertyName> -->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ParameterType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.ParameterType)</ScriptBlock>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>

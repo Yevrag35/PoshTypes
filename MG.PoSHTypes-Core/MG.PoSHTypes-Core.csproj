@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <RootNamespace>MG.PowerShell.Types</RootNamespace>
+    <RootNamespace>MG.Posh.Types</RootNamespace>
     <Copyright>Copyright © 2019-2020 Yevrag35, LLC.</Copyright>
     <Description>A shorthand module for performing ''GetType()'' and ''Get-Member'' methods quickly.</Description>
     <Company>Yevrag35, LLC.</Company>
@@ -15,7 +15,7 @@
     <Version>1.3.0</Version>
     <LangVersion>7.3</LangVersion>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <AssemblyName>MG.PowerShell.Types-Core</AssemblyName>
+    <AssemblyName>MG.Posh.Types-Core</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -37,12 +37,12 @@
 	</ItemGroup>
 	
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-		<PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.0-rc.3" />
+		<PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.0" />
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Include="MG.Dynamic" Version="3.5.0" />
-	  <PackageReference Include="MG.Posh.Extensions" Version="1.0.5" />
+	  <PackageReference Include="MG.Dynamic" Version="3.6.0" />
+	  <PackageReference Include="MG.Posh.Extensions" Version="1.1.0" />
 	</ItemGroup>
 
 </Project>

@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 
-namespace MG.PowerShell.Types.Cmdlets
+namespace MG.Posh.Types.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "BaseType", ConfirmImpact = ConfirmImpact.None)]
     [OutputType(typeof(Type))]

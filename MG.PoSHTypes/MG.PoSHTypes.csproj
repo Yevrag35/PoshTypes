@@ -7,8 +7,8 @@
     <ProjectGuid>{D105EF59-5BD0-4E7A-8318-1A17710A492F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MG.PowerShell.Types</RootNamespace>
-    <AssemblyName>MG.PowerShell.Types</AssemblyName>
+    <RootNamespace>MG.Posh.Types</RootNamespace>
+    <AssemblyName>MG.Posh.Types</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -34,11 +34,11 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MG.Dynamic, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MG.Dynamic.3.5.0\lib\net452\MG.Dynamic.dll</HintPath>
+    <Reference Include="MG.Dynamic, Version=3.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MG.Dynamic.3.6.0\lib\net452\MG.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="MG.Posh.Extensions, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MG.Posh.Extensions.1.0.5\lib\net452\MG.Posh.Extensions.dll</HintPath>
+    <Reference Include="MG.Posh.Extensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MG.Posh.Extensions.1.1.0\lib\net452\MG.Posh.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.PowerShell.Commands.Utility, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -62,6 +62,7 @@
     <Compile Include="Cmdlets\GetParameter.cs" />
     <Compile Include="Cmdlets\GetProperty.cs" />
     <Compile Include="Cmdlets\GetType.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Objects\BaseObject.cs" />
     <Compile Include="Objects\DerivedType.cs" />
     <Compile Include="Objects\Enums.cs" />

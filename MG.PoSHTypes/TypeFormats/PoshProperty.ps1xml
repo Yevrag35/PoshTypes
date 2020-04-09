@@ -4,7 +4,7 @@
         <SelectionSet>
             <Name>PoshPropTable</Name>
             <Types>
-                <TypeName>MG.PowerShell.Types.PoshProperty</TypeName>
+                <TypeName>MG.Posh.Types.PoshProperty</TypeName>
             </Types>
         </SelectionSet>
     </SelectionSets>
@@ -12,7 +12,7 @@
         <View>
             <Name>PropertyList</Name>
             <ViewSelectedBy>
-                <TypeName>MG.PowerShell.Types.PoshProperty</TypeName>
+                <TypeName>MG.Posh.Types.PoshProperty</TypeName>
             </ViewSelectedBy>
             <ListControl>
                 <ListEntries>
@@ -30,17 +30,17 @@
                             <ListItem>
                                 <Label>Type</Label>
                                 <!-- <PropertyName>PropertyType</PropertyName> -->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.PropertyType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.PropertyType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeDeclared</Label>
                                 <!-- <PropertyName>DeclaringType</PropertyName> -->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.DeclaringType)</ScriptBlock>
                             </ListItem>
                             <ListItem>
                                 <Label>TypeReflected</Label>
                                 <!-- <PropertyName>ReflectedType</PropertyName> -->
-                                <ScriptBlock>[MG.PowerShell.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
+                                <ScriptBlock>[MG.Posh.Types.BaseObject]::GetTypeAlias($true, $_.ReflectedType)</ScriptBlock>
                             </ListItem>
                         </ListItems>
                     </ListEntry>

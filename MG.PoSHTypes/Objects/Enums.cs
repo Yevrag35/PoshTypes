@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MG.PowerShell.Types
+namespace MG.Posh.Types
 {
     public enum GetTypeOutput
     {

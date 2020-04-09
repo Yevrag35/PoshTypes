@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace MG.PowerShell.Types
+namespace MG.Posh.Types
 {
     public abstract class BaseObject
     {

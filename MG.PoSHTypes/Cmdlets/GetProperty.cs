@@ -1,5 +1,6 @@
 ﻿using MG.Posh.Extensions.Bound;
 using MG.Posh.Extensions.Pipe;
+using MG.Po
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Reflection;
 
-namespace MG.PowerShell.Types.Cmdlets
+namespace MG.Posh.Types.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "Property", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByTypeName")]
     [Alias("getprop", "gpt")]

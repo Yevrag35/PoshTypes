@@ -9,7 +9,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Reflection;
 
-namespace MG.PowerShell.Types.Cmdlets
+namespace MG.Posh.Types.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "Method", ConfirmImpact = ConfirmImpact.None, DefaultParameterSetName = "ByPipelineType")]
     [Alias("gmt")]

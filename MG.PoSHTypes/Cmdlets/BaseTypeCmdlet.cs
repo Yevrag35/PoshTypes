@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Management.Automation;
 using System.Reflection;
 
-namespace MG.PowerShell.Types
+namespace MG.Posh.Types
 {
     public abstract class BaseTypeCmdlet : PSCmdlet
     {
@@ -44,22 +44,7 @@ namespace MG.PowerShell.Types
             return list;
         }
 
-        #region PARAMETER VALIDATION
-        //public bool HasParameterSpecified<T, U>(T cmdlet, Expression<Func<T, U>> cmdletParameterExpression) where T : PSCmdlet
-        //{
-        //    bool result = false;
-        //    if (cmdletParameterExpression.Body is MemberExpression memEx)
-        //        result = cmdlet.MyInvocation.BoundParameters.ContainsKey(memEx.Member.Name);
-
-        //    else if (cmdletParameterExpression.Body is UnaryExpression unEx && unEx.Operand is MemberExpression unMemEx)
-        //        result = cmdlet.MyInvocation.BoundParameters.ContainsKey(unMemEx.Member.Name);
-
-        //    return result;
-        //}
-
-        #endregion
-
-        protected private virtual BindingFlags JoinFlags(params BindingFlags[] flags)
+        protected private BindingFlags JoinFlags(params BindingFlags[] flags)
         {
             string[] strArr = new string[flags.Length];
             for (int i = 0; i < flags.Length; i++)
@@ -71,21 +56,7 @@ namespace MG.PowerShell.Types
         }
 
         #region FILTERING
-        public IEnumerable<T> FilterByStrings<T>(IEnumerable<T> filterThisCol, Expression<Func<T, string>> propertyExpressionOfCol, IEnumerable<string> withThis)
-            where T : class
-        {
-            if (withThis != null && propertyExpressionOfCol.Body is MemberExpression)
-            {
-                Func<T, string> propertyFunc = propertyExpressionOfCol.Compile();
-
-                return filterThisCol
-                    .Where(x => withThis
-                        .Any(s => s
-                            .Equals(propertyFunc(x), StringComparison.CurrentCultureIgnoreCase)));
-            }
-            else
-                return filterThisCol;
-        }
+        
 
         #endregion
 
