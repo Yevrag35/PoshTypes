@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+	<ViewDefinitions>
+		<View>
+			<Name>Interface Table</Name>
+			<ViewSelectedBy>
+				<TypeName>MG.Types.Models.PSInterfaceObject</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<ScriptBlock>$_.ParentType.ToString()</ScriptBlock>
+				<Label>ParentType</Label>
+			</GroupBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Alignment>Left</Alignment>
+						<Label>Type</Label>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<ScriptBlock>$_.InterfaceType.ToString()</ScriptBlock>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+	</ViewDefinitions>
+</Configuration>

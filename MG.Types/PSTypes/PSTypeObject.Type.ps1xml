@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+	<Type>
+		<Name>MG.Types.Models.PSTypeObject</Name>
+		<Members>
+			<ScriptProperty>
+				<Name>ParentType</Name>
+				<GetScriptBlock>
+					$this.psobject.ParentType
+				</GetScriptBlock>
+			</ScriptProperty>
+		</Members>
+	</Type>
+</Types>
