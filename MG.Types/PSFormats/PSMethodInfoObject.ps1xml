@@ -4,11 +4,11 @@
 		<View>
 			<Name>Interface Table</Name>
 			<ViewSelectedBy>
-				<TypeName>MG.Types.PSObjects.PSInterfaceObject</TypeName>
+				<TypeName>MG.Types.PSObjects.PSMethodInfoObject</TypeName>
 			</ViewSelectedBy>
 			<GroupBy>
 				<ScriptBlock>$_.psobject.ParentType.ToString()</ScriptBlock>
-				<Label>ParentType</Label>
+				<Label>ImplementingType</Label>
 			</GroupBy>
 			<TableControl>
 				<TableHeaders>
@@ -17,7 +17,10 @@
 					</TableColumnHeader>
 					<TableColumnHeader>
 						<Alignment>Left</Alignment>
-						<Label>Type</Label>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Alignment>Left</Alignment>
+						<Label>Definition</Label>
 					</TableColumnHeader>
 				</TableHeaders>
 				<TableRowEntries>
@@ -27,7 +30,10 @@
 								<PropertyName>Name</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
-								<ScriptBlock>$_.ToString()</ScriptBlock>
+								<PropertyName>ReturnType</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>$_.psobject.AsString</ScriptBlock>
 							</TableColumnItem>
 						</TableColumnItems>
 					</TableRowEntry>

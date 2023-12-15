@@ -2,7 +2,7 @@ using MG.Types.Extensions;
 using System;
 using System.Management.Automation.Language;
 using System.Management.Automation;
-using MG.Types.Models;
+using MG.Types.PSObjects;
 
 namespace MG.Types.Attributes
 {

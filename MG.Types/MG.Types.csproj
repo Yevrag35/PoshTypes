@@ -39,13 +39,14 @@
 		<PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Remove="Models\PSTypeObject_old.cs" />
+	  <Compile Remove="PSObjects\PSTypeObject_old.cs" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="Debug.ps1" />
 	  <None Remove="PSFormats\PSInterfaceObject.ps1xml" />
+	  <None Remove="PSFormats\PSMethodInfoObject.ps1xml" />
 	  <None Remove="PSFormats\PSTypeObject.ps1xml" />
-	  <None Remove="PSTypes\PSTypeObject.Type.ps1xml" />
+	  <None Remove="PSTypes\PSReflectionObject.Type.ps1xml" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)'!='Release'">
 	  <Content Include="Debug.ps1">
@@ -58,6 +59,9 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+	  <Content Include="PSFormats\PSMethodInfoObject.ps1xml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="PSFormats\PSInterfaceObject.ps1xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
@@ -66,17 +70,13 @@
 	  <Content Include="PSFormats\PSTypeObject.ps1xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Include="PSTypes\PSTypeObject.Type.ps1xml">
+	  <Content Include="PSTypes\PSReflectionObject.Type.ps1xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Exceptions\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Models\PSTypeObject_old.cs" />
+	  <None Include="PSObjects\PSTypeObject_old.cs" />
 	</ItemGroup>
 
 </Project>

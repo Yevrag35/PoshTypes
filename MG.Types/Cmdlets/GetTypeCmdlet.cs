@@ -1,6 +1,6 @@
 using MG.Types.Attributes;
 using MG.Types.Extensions;
-using MG.Types.Models;
+using MG.Types.PSObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,8 +44,13 @@ namespace MG.Types.Cmdlets
         protected override void ProcessRecord()
         {
             Type type = this.IsFromPipe() ? this.InputObject.GetType() : this.Type;
-            if (this.Interfaces && _types.Add(type))
+            if (this.Interfaces)
             {
+                if (!_types.Add(type))
+                {
+                    return;
+                }
+
                 foreach (Type t in type.GetInterfaces())
                 {
                     this.WriteObject(new PSInterfaceObject(t, type));
@@ -53,15 +58,10 @@ namespace MG.Types.Cmdlets
 
                 return;
             }
-
-            //if (this.Full)
-            //{
-            //    this.WriteObject(new PSTypeObject(type));
-            //}
-            //else
-            //{
-            //    this.WriteObject(new PSTypeObject(this.InputObject));
-            //}
+            else if (_types.Add(type))
+            {
+                this.WriteObject(new PSClassObject(type));
+            }
         }
 
         private bool IsFromPipe()

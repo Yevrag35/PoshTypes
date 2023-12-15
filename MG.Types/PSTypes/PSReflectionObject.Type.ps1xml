@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+	<Type>
+		<Name>MG.Types.PSObjects.PSReflectionObject</Name>
+		<Members>
+			<ScriptProperty>
+				<Name>ParentType</Name>
+				<GetScriptBlock>
+					$this.psobject.ParentType
+				</GetScriptBlock>
+			</ScriptProperty>
+		</Members>
+	</Type>
+	<Type>
+		<Name>MG.Types.PSObjects.PSMethodInfoObject</Name>
+		<Members>
+			<ScriptProperty>
+				<Name>Definition</Name>
+				<GetScriptBlock>
+					$this.psobject.AsString
+				</GetScriptBlock>
+			</ScriptProperty>
+		</Members>
+	</Type>
+</Types>
