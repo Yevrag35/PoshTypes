@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+	<ViewDefinitions>
+		<View>
+			<Name>Interface Table</Name>
+			<ViewSelectedBy>
+				<TypeName>MG.Types.PSObjects.PSMethodInfoObject</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<ScriptBlock>$_.psobject.ParentType.ToString()</ScriptBlock>
+				<Label>ImplementingType</Label>
+			</GroupBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Alignment>Left</Alignment>
+						<Label>Definition</Label>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>Name</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>ReturnType</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>$_.psobject.AsString</ScriptBlock>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+	</ViewDefinitions>
+</Configuration>

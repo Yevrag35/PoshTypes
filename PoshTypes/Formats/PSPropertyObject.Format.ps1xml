@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+	<ViewDefinitions>
+		<View>
+			<Name>PropertyList</Name>
+			<ViewSelectedBy>
+				<TypeName>PSMemberObject</TypeName>
+			</ViewSelectedBy>
+			<GroupBy>
+				<ScriptBlock>$_.ParentType.ToString()</ScriptBlock>
+				<Label>ImplementingType</Label>
+			</GroupBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Alignment>Center</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader></TableColumnHeader>
+					<TableColumnHeader></TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>AccessModifier</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Name</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Type</PropertyName>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+	</ViewDefinitions>
+</Configuration>

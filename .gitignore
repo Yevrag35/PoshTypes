@@ -260,5 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 DebugScript\.ps1
+PowerShell-7.2/
 
 desktop\.ini
