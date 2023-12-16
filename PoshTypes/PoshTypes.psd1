@@ -12,7 +12,7 @@
 RootModule = "PoshTypes.psm1"
 
 # Version number of this module.
-ModuleVersion = '1.3.0'
+ModuleVersion = '1.3.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -54,14 +54,7 @@ DotNetFrameworkVersion = '4.7.1'
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = if ($PSEdition -ne "Desktop")
-{
-	@("DotNet\System.Buffers.dll")
-}
-else
-{
-	@()
-}
+# RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()

@@ -1,6 +1,7 @@
 if ($PSVersionTable.PSVersion.Major -le 5) {
 	
 	# .NET Framework 4.7.1 + higher (Windows PowerShell 5.1)
+	Import-Module "$PSScriptRoot\DotNet\System.Buffers.dll"
 	$dllPath = "$PSScriptRoot\DotNet\MG.Types.dll"
 }
 elseif ($PSVersionTable.PSVersion.Minor -ge 4) {
