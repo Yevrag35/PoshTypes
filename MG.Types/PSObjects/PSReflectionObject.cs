@@ -3,7 +3,7 @@ using MG.Types.PSProperties;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using System.Reflection;
@@ -32,33 +32,51 @@ namespace MG.Types.PSObjects
         protected PSReflectionObject(object baseObj, Type? parentType)
             : base(baseObj)
         {
-            ArgumentNullException.ThrowIfNull(baseObj);
+            Guard.NotNull(baseObj, nameof(baseObj));
             this.ParentType = parentType;
             this.AddThisName();
         }
 
         private void AddThisName()
         {
-            int count = THIS_COUNT + (this.MyNumberOfTypeNames < 0 ? 0 : this.MyNumberOfTypeNames);
+            int count = CalculateCapacity(this.MyNumberOfTypeNames, THIS_COUNT);
 
             string[] names = ArrayPool<string>.Shared.Rent(count);
-            Span<string> span = names.AsSpan(0, count);
-            span[0] = PSReflectionTypeName;
-
-            this.AddTypeName(span.Slice(THIS_COUNT));
-
-            foreach (string s in span)
-            {
-                this.TypeNames.Insert(0, s);
-            }
+            this.AddNamesFromSlice(count, names);
 
             ArrayPool<string>.Shared.Return(names);
         }
-        protected virtual void AddTypeName(Span<string> addToNames)
+
+#if NET6_0_OR_GREATER
+        private void AddNamesFromSlice(int count, string[] names)
+        {
+            names[0] = PSReflectionTypeName;
+
+            this.AddTypeName(THIS_COUNT, names);
+
+            foreach (string s in names.AsSpan(0, count))
+            {
+                this.TypeNames.Insert(0, s);
+            }
+        }
+#else
+        private void AddNamesFromSlice(int count, string[] names)
+        {
+            names[0] = PSReflectionTypeName;
+
+            this.AddTypeName(THIS_COUNT, names);
+
+            for (int i = 0; i < count; i++)
+            {
+                this.TypeNames.Insert(0, names[i]);
+            }
+        }
+#endif
+
+        protected virtual void AddTypeName(int addToIndex, string[] addToNames)
         {
             return;
         }
-
         private static int CalculateCapacity(int capacity, int internalCapacity)
         {
             capacity += internalCapacity;
@@ -75,11 +93,15 @@ namespace MG.Types.PSObjects
         protected PSReflectionObject(T obj, Type? parentType)
             : base(obj, parentType)
         {
-            ArgumentNullException.ThrowIfNull(obj);
+            Guard.NotNull(obj, nameof(obj));
             this.ReflectionObject = obj;
         }
 
+#if NET6_0_OR_GREATER
         public int CompareTo(TSelf? other)
+#else
+        public int CompareTo([MaybeNull] TSelf other)
+#endif
         {
             if (ReferenceEquals(this, other))
             {
@@ -92,7 +114,12 @@ namespace MG.Types.PSObjects
 
             return this.ReflectionObjectCompareTo(this.ReflectionObject, other.ReflectionObject, other);
         }
+
+#if NET6_0_OR_GREATER
         public bool Equals(TSelf? other)
+#else
+        public bool Equals([MaybeNull] TSelf other)
+#endif
         {
             if (ReferenceEquals(this, other))
             {

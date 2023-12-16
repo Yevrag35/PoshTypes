@@ -32,8 +32,12 @@ namespace MG.Types.Cmdlets
 
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [Parameter(Mandatory = true, Position = 1, ParameterSetName = PSConstants.WITH_TYPE)]
-        [ValidateNotNullOrWhiteSpace]
         [SupportsWildcards]
+#if NET8_0_OR_GREATER
+        [ValidateNotNullOrWhiteSpace]
+#else
+        [ValidateNotNullOrEmpty]
+#endif
         public string[] Name { get; set; } = null!;
 
         protected override void BeginProcessing()

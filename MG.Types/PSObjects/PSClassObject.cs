@@ -25,10 +25,10 @@ namespace MG.Types.PSObjects
             this.PSName = type.GetPSTypeName();
         }
 
-        protected override void AddTypeName(Span<string> addToNames)
+        protected override void AddTypeName(int addAt, string[] addToNames)
         {
-            addToNames[0] = PSConstants.PS_TYPE;
-            addToNames[1] = _typeName;
+            addToNames[addAt++] = PSConstants.PS_TYPE;
+            addToNames[addAt] = _typeName;
         }
 
         protected override int ReflectionObjectCompareTo(Type thisObj, Type other, PSClassObject otherParent)

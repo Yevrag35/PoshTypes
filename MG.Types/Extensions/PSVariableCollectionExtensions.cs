@@ -13,7 +13,7 @@ namespace MG.Types.Extensions
     internal static class PSVariableCollectionExtensions
     {
         [return: NotNullIfNotNull(nameof(defaultIfNull))]
-        internal static T? GetFirstValue<T>(this Collection<PSObject>? collection, Func<object, T?> convert, T? defaultIfNull = default)
+        internal static T GetFirstValue<T>(this Collection<PSObject>? collection, Func<object, T> convert, T defaultIfNull = default)
         {
             if (collection is null || collection.Count <= 0 || !collection[0].TryGetBaseObject(out object? o))
             {

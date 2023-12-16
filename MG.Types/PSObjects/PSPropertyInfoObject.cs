@@ -23,10 +23,10 @@ namespace MG.Types.PSObjects
             this.Type = propertyInfo.PropertyType;
         }
 
-        protected override void AddTypeName(Span<string> addToNames)
+        protected override void AddTypeName(int addAt, string[] addToNames)
         {
-            addToNames[0] = PSMemberObject.TypeName;
-            addToNames[1] = _typeName;
+            addToNames[addAt++] = PSMemberObject.TypeName;
+            addToNames[addAt] = _typeName;
         }
 
         private static AccessModifier GetAccessModifier(PropertyInfo propertyInfo)

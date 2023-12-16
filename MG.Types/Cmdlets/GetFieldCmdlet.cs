@@ -31,7 +31,11 @@ namespace MG.Types.Cmdlets
 
         [Parameter(Mandatory = false, Position = 0, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [Parameter(Mandatory = false, Position = 1, ParameterSetName = PSConstants.WITH_TYPE)]
+#if NET8_0_OR_GREATER
         [ValidateNotNullOrWhiteSpace]
+#else
+        [ValidateNotNullOrEmpty]
+#endif
         [SupportsWildcards]
         public string[] Name { get; set; } = Array.Empty<string>();
 

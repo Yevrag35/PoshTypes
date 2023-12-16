@@ -8,11 +8,20 @@ namespace MG.Types.PSProperties
     public class ReadOnlyPSNoteProperty<T> : ReadOnlyPSNoteProperty
     {
         private bool _hasValue;
-        private T? _value;
 
+#if NET6_0_OR_GREATER
+        private T? _value;
         [MemberNotNullWhen(true, nameof(_value), nameof(ValueAsT))]
         public bool HasValue => _hasValue;
         public T? ValueAsT => _value;
+#else
+        [MaybeNull]
+        private T _value;
+
+        public bool HasValue => _hasValue;
+        public T ValueAsT => _value;
+#endif
+
 
         protected ReadOnlyPSNoteProperty(string propertyName)
             : base(propertyName)
@@ -27,7 +36,7 @@ namespace MG.Types.PSProperties
 
         protected sealed override ReadOnlyPSNoteProperty Copy(object? clonedValue)
         {
-            if (clonedValue is not T clonedTVal)
+            if (!(clonedValue is T clonedTVal))
             {
                 throw new InvalidOperationException($"The cloned value is not of the generic type '{this.TypeNameOfValue}'.");
             }
@@ -54,16 +63,16 @@ namespace MG.Types.PSProperties
 
         protected sealed override void SetValue(object? value)
         {
-            if (this.TryConvertValue(value, value is null, out T? valueToSet))
+            if (this.TryConvertValue(value, value is null, out T valueToSet))
             {
                 this.SetValue(valueToSet, valueToSet is null);
             }
         }
-        protected virtual void SetValue([NotNullIfNotNull(nameof(valueIsNull))] T? value, bool valueIsNull)
+        protected virtual void SetValue([NotNullIfNotNull(nameof(valueIsNull))] T value, bool valueIsNull)
         {
             _value = value;
         }
-        protected virtual bool TryConvertValue(object? value, bool valueIsNull, [NotNullWhen(true)] out T? valueToSet)
+        protected virtual bool TryConvertValue(object? value, bool valueIsNull, [NotNullWhen(true)] out T valueToSet)
         {
             if (value is T tVal)
             {
@@ -72,7 +81,7 @@ namespace MG.Types.PSProperties
             }
             else
             {
-                valueToSet = default;
+                valueToSet = default!;
                 return false;
             }
         }

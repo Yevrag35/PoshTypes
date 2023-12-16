@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Management.Automation.Language;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MG.Types.Extensions
 {
@@ -16,7 +13,7 @@ namespace MG.Types.Extensions
 
         internal static bool IsProperScriptBlock(this ScriptBlock scriptBlock)
         {
-            ArgumentNullException.ThrowIfNull(scriptBlock);
+            Guard.NotNull(scriptBlock, nameof(scriptBlock));
 
             if (!(scriptBlock.Ast is ScriptBlockAst scriptAst))
             {
@@ -50,14 +47,15 @@ namespace MG.Types.Extensions
         }
 
         [return: NotNullIfNotNull(nameof(defaultIfNull))]
-        internal static T? InvokeWithContext<T>(this ScriptBlock scriptBlock, List<PSVariable> variables, Func<object, T?> selectAs, T? defaultIfNull = default!)
+        internal static T InvokeWithContext<T>(this ScriptBlock scriptBlock, List<PSVariable> variables, Func<object, T> selectAs, T defaultIfNull = default!)
         {
             Collection<PSObject> results = scriptBlock.InvokeWithContext(null, variables, _emptyObjs);
             return results.GetFirstValue(selectAs, defaultIfNull);
         }
 
 
-        internal static bool TryInvokeWithContext<T>(this ScriptBlock scriptBlock, List<PSVariable> variables, Func<object, T> selectAs, [NotNullIfNotNull(nameof(defaultIfNull))] out T? result, [NotNullWhen(false)] out Exception? caughtError, T? defaultIfNull = default)
+        [return: NotNullIfNotNull(nameof(defaultIfNull))]
+        internal static bool TryInvokeWithContext<T>(this ScriptBlock scriptBlock, List<PSVariable> variables, Func<object, T> selectAs, [NotNullIfNotNull(nameof(defaultIfNull))] out T result, [NotNullWhen(false)] out Exception? caughtError, T defaultIfNull = default!)
         {
             try
             {

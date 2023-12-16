@@ -13,11 +13,21 @@ namespace MG.Types.Cmdlets
     [Alias("Get-DerivedType")]
     public sealed class GetDerivedCmdlet : TypeCmdletBase
     {
-        static readonly Lazy<HashSet<Type>> _allExportedTypes = 
-            new Lazy<HashSet<Type>>(GetAllExportedTypes(new HashSet<Type>(2000)));
+        static readonly Lazy<HashSet<Type>> _allExportedTypes =
+            new Lazy<HashSet<Type>>(
+#if NET6_0_OR_GREATER
+                GetAllExportedTypes(new HashSet<Type>(2000)));
+#else
+                BuildLazy);
 
-        private static HashSet<Type> GetAllExportedTypes(HashSet<Type> set)
+        private static HashSet<Type> BuildLazy()
         {
+            return GetAllExportedTypes(null);
+        }
+#endif
+        private static HashSet<Type> GetAllExportedTypes(HashSet<Type>? set)
+        {
+            set ??= new HashSet<Type>();
             Assembly[] asses = AppDomain.CurrentDomain.GetAssemblies();
 
             foreach (Assembly ass in asses)

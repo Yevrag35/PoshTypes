@@ -24,14 +24,14 @@ namespace MG.Types.Exceptions
         private ReadOnlyPropertyException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            ArgumentNullException.ThrowIfNull(info);
+            Guard.NotNull(info, nameof(info));
             this.PropertyName = info.GetString(nameof(this.PropertyName));
         }
 
         [Obsolete]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            ArgumentNullException.ThrowIfNull(info);
+            Guard.NotNull(info, nameof(info));
 
             info.AddValue(nameof(this.PropertyName), this.PropertyName, typeof(string));
 

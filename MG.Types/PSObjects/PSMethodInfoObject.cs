@@ -1,4 +1,5 @@
 using MG.Types.Extensions;
+using MG.Types.Statics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,9 +25,9 @@ namespace MG.Types.PSObjects
             _toStr = this.GetDisplayString(methodInfo, _parameters);
         }
 
-        protected override void AddTypeName(Span<string> addToNames)
+        protected override void AddTypeName(int addAt, string[] addToNames)
         {
-            addToNames[0] = _typeName;
+            addToNames[addAt] = _typeName;
         }
 
         protected override int ReflectionObjectCompareTo(MethodInfo thisObj, MethodInfo other, PSMethodInfoObject otherParent)
@@ -48,7 +49,7 @@ namespace MG.Types.PSObjects
         const string FORMAT = "{0} {1}({2})";
         private string GetDisplayString(MethodInfo method, ParameterInfo[] parameters)
         {
-            StringBuilder builder = new(150);
+            var builder = new StringBuilder(150);
             builder.Append(method.ReturnType.GetPSTypeName())
                    .Append(' ')
                    .Append(method.Name)

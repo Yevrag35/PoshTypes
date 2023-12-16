@@ -17,6 +17,9 @@ param  (
 	[string[]] $CopyToOutput = @()
 )
 
+[System.Environment]::GetEnvironmentVariable("DEBUG_DIR")
+Write-Host $PSScriptRoot
+
 $depFile = "$PSScriptRoot\$LibraryName.deps.json"
 $json = Get-Content -Path $depFile -Raw | ConvertFrom-Json
 

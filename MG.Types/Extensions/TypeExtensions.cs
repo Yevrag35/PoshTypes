@@ -1,5 +1,6 @@
 using MG.Types.Components;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace MG.Types.Extensions
             return type.FullName ?? string.Empty;
         }
 
-#if NET6_0_OR_GREATER
+
         [DebuggerStepThrough]
         [return: NotNullIfNotNull(nameof(type))]
         public static string? GetPSTypeName(this Type? type)
@@ -50,11 +51,14 @@ namespace MG.Types.Extensions
                 return name;
             }
 
-            Span<char> span = stackalloc char[name.Length];
-            name.AsSpan(1).CopyTo(span);
-            span = span.Slice(0, name.Length - 2);
+            return RemoveBrackets(name);
+        }
 
-            return new string(span);
+#if NET6_0_OR_GREATER
+        private static string RemoveBrackets(ReadOnlySpan<char> name)
+        {
+            name = name.Slice(1, name.Length - 2);
+            return new string(name);
         }
 
         [DebuggerStepThrough]
@@ -88,9 +92,21 @@ namespace MG.Types.Extensions
             });
         }
 #else
+        private static string RemoveBrackets(string name)
+        {
+            int length = name.Length;
+            char[] rented = ArrayPool<char>.Shared.Rent(length);
+
+            name.CopyTo(1, rented, 0, length - 2);
+
+            string newStr = new string(rented, 0, length - 2);
+            ArrayPool<char>.Shared.Return(rented);
+
+            return newStr;
+        }
         [DebuggerStepThrough]
         [return: NotNullIfNotNull(nameof(type))]
-        public static string? GetTypeName(this Type? type)
+        public static string GetTypeName(this Type type)
         {
             if (type is null)
             {

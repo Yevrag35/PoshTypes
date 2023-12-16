@@ -1,5 +1,6 @@
 using MG.Types.Components;
 using MG.Types.Extensions;
+using MG.Types.Statics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +26,10 @@ namespace MG.Types.PSObjects
             this.Type = fieldInfo.FieldType;
         }
 
-        protected override void AddTypeName(Span<string> addToNames)
+        protected override void AddTypeName(int addAt, string[] addToNames)
         {
-            addToNames[0] = PSMemberObject.TypeName;
-            addToNames[1] = _typeName;
+            addToNames[addAt++] = PSMemberObject.TypeName;
+            addToNames[addAt] = _typeName;
         }
 
         private static AccessModifier GetAccessModifier(FieldInfo fieldInfo)

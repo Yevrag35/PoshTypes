@@ -32,7 +32,7 @@ namespace MG.Types.PSProperties
 
         protected ReadOnlyPSNoteProperty(string propertyName)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
+            Guard.NotNullOrEmpty(propertyName, nameof(propertyName));
             this.SetMemberName(propertyName);
         }
         protected ReadOnlyPSNoteProperty(string propertyName, object? value)

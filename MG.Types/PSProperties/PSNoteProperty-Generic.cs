@@ -10,15 +10,26 @@ namespace MG.Types.PSProperties
 {
     public class PSNoteProperty<T> : PSNotePropertyBase
     {
-        private T? _value;
-
         public sealed override bool IsSettable => true;
 
+#if NET6_0_OR_GREATER
+        private T? _value;
         public virtual T? ValueAsT
         {
             get => _value;
             set => _value = value;
         }
+#else
+        [MaybeNull]
+        private T _value;
+        [MaybeNull]
+        public virtual T ValueAsT
+        {
+            get => _value;
+            set => _value = value;
+        }
+#endif
+
         public sealed override object? Value
         {
             get => this.ValueAsT;
@@ -29,7 +40,7 @@ namespace MG.Types.PSProperties
         {
             this.SetMemberName(propertyName);
         }
-        public PSNoteProperty(string propertyName, T? value)
+        public PSNoteProperty(string propertyName, T value)
             : this(propertyName)
         {
             _value = value;
@@ -37,15 +48,15 @@ namespace MG.Types.PSProperties
 
         public sealed override PSMemberInfo Copy()
         {
-            T? val = _value;
+            T val = _value!;
             if (_value is ICloneable clonable)
             {
-                val = (T?)clonable.Clone();
+                val = (T)clonable.Clone();
             }
 
             return this.Copy(val);
         }
-        protected virtual PSNoteProperty<T> Copy(T? clonedValue)
+        protected virtual PSNoteProperty<T> Copy(T clonedValue)
         {
             return new PSNoteProperty<T>(this.Name, clonedValue);
         }
@@ -55,12 +66,12 @@ namespace MG.Types.PSProperties
         }
         private void SetBackingValue(object? value)
         {
-            if (this.TryConvertValue(value, value is null, out T? tVal))
+            if (this.TryConvertValue(value, value is null, out T tVal))
             {
                 this.ValueAsT = tVal;
             }
         }
-        protected virtual bool TryConvertValue(object? value, bool valueIsNull, [NotNullWhen(true)] out T? valueToSet)
+        protected virtual bool TryConvertValue(object? value, bool valueIsNull, [NotNullWhen(true)] out T valueToSet)
         {
             if (value is T tVal)
             {
@@ -69,7 +80,7 @@ namespace MG.Types.PSProperties
             }
             else
             {
-                valueToSet = default;
+                valueToSet = default!;
                 return false;
             }
         }

@@ -40,7 +40,7 @@ namespace MG.Types.Models
         public PSTypeObject(object obj)
             : base(2)
         {
-            ArgumentNullException.ThrowIfNull(obj);
+            Guard.NotNull(obj, nameof(obj));
             _type = obj.GetType();
             this.Properties.Add(new PSNoteProperty("Object", obj.ToString()));
             this.Properties.Add(new PSNoteProperty("TypeName", _type.GetPSTypeName()));
