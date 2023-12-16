@@ -4,6 +4,7 @@ using MG.Types.Statics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,6 @@ namespace MG.Types.PSObjects
         static readonly string _typeName = typeof(PSFieldInfoObject).GetTypeName();
 
         public override ReflectionType ReflectionType => ReflectionType.Field;
-        protected override int MyNumberOfTypeNames => 2;
         public AccessModifier AccessModifier { get; }
         public Type Type { get; }
 
@@ -24,12 +24,24 @@ namespace MG.Types.PSObjects
         {
             this.AccessModifier = GetAccessModifier(fieldInfo);
             this.Type = fieldInfo.FieldType;
+
+            this.TryAddOrSetPropertyValue(nameof(this.AccessModifier), this.AccessModifier);
+            this.TryAddOrSetPropertyValue(nameof(this.Type), fieldInfo.FieldType);
         }
 
-        protected override void AddTypeName(int addAt, string[] addToNames)
+        protected override void AddTypeName()
         {
-            addToNames[addAt++] = PSMemberObject.TypeName;
-            addToNames[addAt] = _typeName;
+            if (!_typeName.Equals(this.TypeNames[0]))
+            {
+                this.TypeNames.Insert(0, PSReflectionTypeName);
+                this.TypeNames.Insert(0, PSMemberObject.TypeName);
+                this.TypeNames.Insert(0, _typeName);
+            }
+        }
+
+        public override PSObject Copy()
+        {
+            return new PSFieldInfoObject(this.ReflectionObject, this.ParentType!);
         }
 
         private static AccessModifier GetAccessModifier(FieldInfo fieldInfo)

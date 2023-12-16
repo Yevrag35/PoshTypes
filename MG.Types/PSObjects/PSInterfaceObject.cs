@@ -12,19 +12,30 @@ namespace MG.Types.PSObjects
         static readonly string _typeName = typeof(PSInterfaceObject).GetTypeName();
 
         public override ReflectionType ReflectionType => ReflectionType.Interface;
-        protected override int MyNumberOfTypeNames => 2;
         public string PSName { get; }
 
         internal PSInterfaceObject(Type type, Type parentType)
             : base(type, parentType)
         {
-            this.PSName = type.GetPSTypeName();
+            string name = type.GetPSTypeName();
+            this.PSName = name;
+            this.TryAddOrSetPropertyValue(nameof(this.PSName), name);
+            this.TryAddOrSetPropertyValue(nameof(this.ReflectionType), this.ReflectionType);
         }
 
-        protected override void AddTypeName(int addAt, string[] addToNames)
+        protected override void AddTypeName()
         {
-            addToNames[addAt++] = PSConstants.PS_TYPE;
-            addToNames[addAt] = _typeName;
+            if (!_typeName.Equals(this.TypeNames[0]))
+            {
+                this.TypeNames.Insert(0, PSReflectionTypeName);
+                this.TypeNames.Insert(0, PSConstants.PS_TYPE);
+                this.TypeNames.Insert(0, _typeName);
+            }
+        }
+
+        public override PSObject Copy()
+        {
+            return new PSInterfaceObject(this.ReflectionObject, this.ParentType!);
         }
 
         protected override int ReflectionObjectCompareTo(Type thisObj, Type other, PSInterfaceObject otherParent)

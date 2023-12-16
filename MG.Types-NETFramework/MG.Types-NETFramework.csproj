@@ -73,6 +73,9 @@
     <Compile Include="..\MG.Types\**\*.cs" Exclude="..\MG.Types\obj\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Debug.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

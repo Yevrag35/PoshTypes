@@ -15,7 +15,6 @@ namespace MG.Types.Cmdlets
     public sealed class GetFieldCmdlet : TypeCmdletBase
     {
         BindingFlags _flags = BindingFlags.Public | BindingFlags.Instance;
-        HashSet<Type> _types = null!;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [AllowEmptyCollection]
@@ -75,17 +74,15 @@ namespace MG.Types.Cmdlets
             }
         }
 
-        protected override void BeginProcessing()
+        protected override void Process()
         {
-            _types = new HashSet<Type>();
-        }
-        protected override void ProcessRecord()
-        {
+            HashSet<Type> types = this.GetPooledSet();
+
             Type type = PSConstants.IsFromPipeline(this)
                 ? GetTypeFromObject(this.InputObject)
                 : this.Type;
 
-            if (!_types.Add(type))
+            if (!types.Add(type))
             {
                 return;
             }

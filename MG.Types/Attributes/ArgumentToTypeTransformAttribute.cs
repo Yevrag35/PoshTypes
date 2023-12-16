@@ -3,6 +3,7 @@ using System;
 using System.Management.Automation.Language;
 using System.Management.Automation;
 using MG.Types.PSObjects;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MG.Types.Attributes
 {
@@ -17,7 +18,7 @@ namespace MG.Types.Attributes
             return GetPSTypeObject(engineIntrinsics, target);
         }
 
-        private static Type GetPSTypeObject(EngineIntrinsics engineIntrinsics, object? target)
+        private static Type? GetPSTypeObject(EngineIntrinsics engineIntrinsics, object? target)
         {
             switch (target)
             {
@@ -30,8 +31,11 @@ namespace MG.Types.Attributes
                 case string typeName:
                     return ResolveFromName(typeName, engineIntrinsics.SessionState.Module);
 
+                case null:
+                    return null;
+
                 default:
-                    return typeof(object);
+                    return target.GetType();
             }
         }
 
@@ -41,7 +45,7 @@ namespace MG.Types.Attributes
             {
                 var first = (TypeExpressionAst?)ast.Find(x => x is TypeExpressionAst, false);
 
-                return first?.TypeName.GetReflectionType() ?? throw new ParseException($"{ast.Extent.Text} is not a type expression.");
+                return GetTypeFromAstOrObject(ast, first);
             }
             catch (ParseException e)
             {
@@ -53,6 +57,23 @@ namespace MG.Types.Attributes
                 throw new ArgumentException($"'{ast.Extent.Text}' is not a valid .NET or custom-defined type.", e);
             }
         }
+
+        private static Type GetTypeFromAstOrObject(Ast ast, TypeExpressionAst? first)
+        {
+            if (first is null)
+            {
+                return typeof(string);
+            }
+
+            return first.TypeName.GetReflectionType() ?? ThrowNotType(ast);
+        }
+
+        [DoesNotReturn]
+        private static Type ThrowNotType(Ast ast)
+        {
+            throw new ParseException($"{ast.Extent.Text} is not a type expression.");
+        }
+
         private static Type ResolveFromName(string typeName, PSModuleInfo? runningModule)
         {
             Ast ast;

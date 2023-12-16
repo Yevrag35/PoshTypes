@@ -71,20 +71,22 @@ namespace MG.Types.Cmdlets
         [Parameter]
         public SwitchParameter ReloadAssemblies { get; set; }
 
-        protected override void BeginProcessing()
+        protected override void Begin()
         {
             if (this.ReloadAssemblies)
             {
                 ReloadTypes();
             }
         }
-        protected override void ProcessRecord()
+        protected override void Process()
         {
+            HashSet<Type> types = this.GetPooledSet();
+
             Type baseType = PSConstants.IsFromPipeline(this)
                ? GetTypeFromObject(this.InputObject)
                : this.Type;
 
-            if (baseType.IsSealed)
+            if (baseType.IsSealed || !types.Add(baseType))
             {
                 return;
             }

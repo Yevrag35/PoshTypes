@@ -17,9 +17,6 @@ param  (
 	[string[]] $CopyToOutput = @()
 )
 
-[System.Environment]::GetEnvironmentVariable("DEBUG_DIR")
-Write-Host $PSScriptRoot
-
 $depFile = "$PSScriptRoot\$LibraryName.deps.json"
 $json = Get-Content -Path $depFile -Raw | ConvertFrom-Json
 
@@ -85,6 +82,10 @@ if (-not (Test-Path -Path $dllPath -PathType Leaf)) {
 }
 
 if ($PSCmdlet.ShouldProcess($dllPath, "Importing Module")) {
+
+	Get-ChildItem $PSScriptRoot -Filter *.dll -Exclude "$($LibraryName).dll" | %{
+		Import-Module $_.FullName
+	}
 
 	Import-Module $dllPath -ErrorAction Stop
 	Push-Location $myDesktop

@@ -3,6 +3,7 @@ using MG.Types.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using System.Reflection;
 
 namespace MG.Types.PSObjects
@@ -12,7 +13,6 @@ namespace MG.Types.PSObjects
         static readonly string _typeName = typeof(PSPropertyInfoObject).GetTypeName();
 
         public override ReflectionType ReflectionType => ReflectionType.Property;
-        protected override int MyNumberOfTypeNames => 2;
         public AccessModifier AccessModifier { get; }
         public Type Type { get; }
 
@@ -21,12 +21,24 @@ namespace MG.Types.PSObjects
         {
             this.AccessModifier = GetAccessModifier(propertyInfo);
             this.Type = propertyInfo.PropertyType;
+
+            this.TryAddOrSetPropertyValue(nameof(this.AccessModifier), this.AccessModifier);
+            this.TryAddOrSetPropertyValue(nameof(this.Type), propertyInfo.PropertyType);
         }
 
-        protected override void AddTypeName(int addAt, string[] addToNames)
+        protected override void AddTypeName()
         {
-            addToNames[addAt++] = PSMemberObject.TypeName;
-            addToNames[addAt] = _typeName;
+            if (!_typeName.Equals(this.TypeNames[0]))
+            {
+                this.TypeNames.Insert(0, PSReflectionTypeName);
+                this.TypeNames.Insert(0, PSMemberObject.TypeName);
+                this.TypeNames.Insert(0, _typeName);
+            }
+        }
+
+        public override PSObject Copy()
+        {
+            return new PSPropertyInfoObject(this.ReflectionObject, this.ParentType!);
         }
 
         private static AccessModifier GetAccessModifier(PropertyInfo propertyInfo)

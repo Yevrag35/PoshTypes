@@ -3,7 +3,7 @@ using MG.Types.PSProperties;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using System.Reflection;
@@ -14,6 +14,7 @@ namespace MG.Types.PSObjects
     {
         Class,
         Interface,
+        Struct,
         Method,
         Property,
         Field,
@@ -22,65 +23,22 @@ namespace MG.Types.PSObjects
     public abstract class PSReflectionObject : PSObject
     {
         protected static readonly string PSReflectionTypeName = typeof(PSReflectionObject).GetTypeName();
-        const int THIS_COUNT = 1;
-
-        protected abstract int MyNumberOfTypeNames { get; }
-
         public abstract ReflectionType ReflectionType { get; }
         public Type? ParentType { get; private set; }
 
         protected PSReflectionObject(object baseObj, Type? parentType)
-            : base(baseObj)
+            : base(GetNonReflectionObject(baseObj))
         {
-            Guard.NotNull(baseObj, nameof(baseObj));
             this.ParentType = parentType;
-            this.AddThisName();
+            this.TryAddOrSetPropertyValue(nameof(this.ParentType), parentType);
+            this.AddTypeName();
         }
 
-        private void AddThisName()
+        protected abstract void AddTypeName();
+
+        private static object GetNonReflectionObject(object baseObj)
         {
-            int count = CalculateCapacity(this.MyNumberOfTypeNames, THIS_COUNT);
-
-            string[] names = ArrayPool<string>.Shared.Rent(count);
-            this.AddNamesFromSlice(count, names);
-
-            ArrayPool<string>.Shared.Return(names);
-        }
-
-#if NET6_0_OR_GREATER
-        private void AddNamesFromSlice(int count, string[] names)
-        {
-            names[0] = PSReflectionTypeName;
-
-            this.AddTypeName(THIS_COUNT, names);
-
-            foreach (string s in names.AsSpan(0, count))
-            {
-                this.TypeNames.Insert(0, s);
-            }
-        }
-#else
-        private void AddNamesFromSlice(int count, string[] names)
-        {
-            names[0] = PSReflectionTypeName;
-
-            this.AddTypeName(THIS_COUNT, names);
-
-            for (int i = 0; i < count; i++)
-            {
-                this.TypeNames.Insert(0, names[i]);
-            }
-        }
-#endif
-
-        protected virtual void AddTypeName(int addToIndex, string[] addToNames)
-        {
-            return;
-        }
-        private static int CalculateCapacity(int capacity, int internalCapacity)
-        {
-            capacity += internalCapacity;
-            return capacity >= internalCapacity ? capacity : internalCapacity;
+            return baseObj is PSObject psro ? psro.BaseObject : baseObj;
         }
     }
 

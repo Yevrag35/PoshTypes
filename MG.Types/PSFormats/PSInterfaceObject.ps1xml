@@ -7,17 +7,12 @@
 				<TypeName>MG.Types.PSObjects.PSInterfaceObject</TypeName>
 			</ViewSelectedBy>
 			<GroupBy>
-				<ScriptBlock>$_.psobject.ParentType.ToString()</ScriptBlock>
-				<Label>ParentType</Label>
+				<PropertyName>ParentType</PropertyName>
 			</GroupBy>
 			<TableControl>
 				<TableHeaders>
 					<TableColumnHeader>
 						<Alignment>Left</Alignment>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Alignment>Left</Alignment>
-						<Label>Type</Label>
 					</TableColumnHeader>
 				</TableHeaders>
 				<TableRowEntries>
@@ -25,9 +20,6 @@
 						<TableColumnItems>
 							<TableColumnItem>
 								<PropertyName>Name</PropertyName>
-							</TableColumnItem>
-							<TableColumnItem>
-								<ScriptBlock>$_.ToString()</ScriptBlock>
 							</TableColumnItem>
 						</TableColumnItems>
 					</TableRowEntry>

@@ -9,13 +9,14 @@ using System.Management.Automation;
 
 namespace MG.Types.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "PSType", DefaultParameterSetName = PSConstants.WITH_TYPE)]
+    [Cmdlet(VerbsCommon.Get, "PSType", DefaultParameterSetName = PSConstants.FROM_PIPELINE)]
     [Alias("Get-Type")]
     public sealed class GetTypeCmdlet : TypeCmdletBase
     {
-        HashSet<Type> _types = null!;
+        List<PSReflectionObject> _output = null!;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = PSConstants.FROM_PIPELINE)]
+        [Alias("Object", "FromObject")]
         [AllowEmptyCollection]
         [AllowEmptyString]
         [ValidateNotNull]
@@ -33,35 +34,42 @@ namespace MG.Types.Cmdlets
         [Parameter]
         public SwitchParameter Interfaces { get; set; }
 
-        protected override void BeginProcessing()
+        protected override void Begin()
         {
-            _types = new HashSet<Type>();
+            _output = new List<PSReflectionObject>(1);
         }
-
-        protected override void ProcessRecord()
+        protected override void Process()
         {
+            HashSet<Type> types = this.GetPooledSet();
+
             Type type = PSConstants.IsFromPipeline(this)
                 ? this.InputObject.GetType()
                 : this.Type;
 
             if (this.Interfaces)
             {
-                if (!_types.Add(type))
+                if (!types.Add(type))
                 {
                     return;
                 }
 
-                foreach (Type t in type.GetInterfaces())
+                Type[] intTypes = type.GetInterfaces();
+                foreach (Type t in intTypes)
                 {
-                    this.WriteObject(new PSInterfaceObject(t, type));
+                    _output.Add(new PSInterfaceObject(t, type));
                 }
 
                 return;
             }
-            else if (_types.Add(type))
+            else if (types.Add(type))
             {
-                this.WriteObject(new PSClassObject(type));
+                _output.Add(new PSClassObject(type));
             }
+        }
+
+        protected override void End()
+        {
+            this.WriteObject(_output, true);
         }
     }
 }

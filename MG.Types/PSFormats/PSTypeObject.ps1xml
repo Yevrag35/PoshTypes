@@ -13,13 +13,10 @@
 			<TableControl>
 				<TableHeaders>
 					<TableColumnHeader>
-						<Alignment>Center</Alignment>
+						<Alignment>Right</Alignment>
 					</TableColumnHeader>
 					<TableColumnHeader>
-						<Alignment>Center</Alignment>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Alignment>Center</Alignment>
+						<Alignment>Left</Alignment>
 					</TableColumnHeader>
 					<TableColumnHeader>
 						<Alignment>Left</Alignment>
@@ -29,13 +26,10 @@
 					<TableRowEntry>
 						<TableColumnItems>
 							<TableColumnItem>
-								<PropertyName>IsPublic</PropertyName>
+								<PropertyName>ReflectionType</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
-								<PropertyName>IsClass</PropertyName>
-							</TableColumnItem>
-							<TableColumnItem>
-								<PropertyName>IsInterface</PropertyName>
+								<PropertyName>Name</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
 								<PropertyName>PSName</PropertyName>

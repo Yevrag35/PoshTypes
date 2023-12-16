@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Types>
-	<Type>
+	<!--<Type>
 		<Name>MG.Types.PSObjects.PSReflectionObject</Name>
 		<Members>
 			<ScriptProperty>
-				<Name>ParentType</Name>
+				<Name>ReflectionType</Name>
 				<GetScriptBlock>
-					$this.psobject.ParentType
+					$this.psobject.ReflectionType
 				</GetScriptBlock>
 			</ScriptProperty>
 		</Members>
-	</Type>
+	</Type>-->
 	<Type>
 		<Name>MG.Types.PSTypeBase</Name>
 		<Members>
-			<ScriptProperty>
+			<!--<ScriptProperty>
 				<Name>PSName</Name>
 				<GetScriptBlock>
 					$this.psobject.PSName
 				</GetScriptBlock>
-			</ScriptProperty>
+			</ScriptProperty>-->
 			<ScriptProperty>
 				<Name>IsStatic</Name>
 				<GetScriptBlock>
@@ -39,7 +39,7 @@
 			</ScriptProperty>
 		</Members>
 	</Type>
-	<Type>
+	<!--<Type>
 		<Name>PSMemberObject</Name>
 		<Members>
 			<ScriptProperty>
@@ -55,5 +55,5 @@
 				</GetScriptBlock>
 			</ScriptProperty>
 		</Members>
-	</Type>
+	</Type>-->
 </Types>

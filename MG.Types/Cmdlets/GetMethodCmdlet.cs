@@ -16,8 +16,6 @@ namespace MG.Types.Cmdlets
     [Alias("Get-Method")]
     public sealed class GetMethodCmdlet : TypeCmdletBase
     {
-        HashSet<Type> _types = null!;
-
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [AllowEmptyCollection]
         [AllowEmptyString]
@@ -40,17 +38,15 @@ namespace MG.Types.Cmdlets
 #endif
         public string[] Name { get; set; } = null!;
 
-        protected override void BeginProcessing()
+        protected override void Process()
         {
-            _types = new HashSet<Type>();
-        }
-        protected override void ProcessRecord()
-        {
+            HashSet<Type> types = this.GetPooledSet();
+
             Type type = PSConstants.IsFromPipeline(this)
                 ? GetTypeFromObject(this.InputObject)
                 : this.Type;
 
-            if (!_types.Add(type))
+            if (!types.Add(type))
             {
                 return;
             }

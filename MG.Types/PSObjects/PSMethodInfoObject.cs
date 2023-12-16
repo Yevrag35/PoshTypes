@@ -3,6 +3,7 @@ using MG.Types.Statics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,6 @@ namespace MG.Types.PSObjects
 
         public string AsString => _toStr;
         public override ReflectionType ReflectionType => ReflectionType.Method;
-        protected override int MyNumberOfTypeNames => 1;
         internal PSMethodInfoObject(MethodInfo methodInfo, Type fromType)
             : base(methodInfo, fromType)
         {
@@ -25,9 +25,18 @@ namespace MG.Types.PSObjects
             _toStr = this.GetDisplayString(methodInfo, _parameters);
         }
 
-        protected override void AddTypeName(int addAt, string[] addToNames)
+        protected override void AddTypeName()
         {
-            addToNames[addAt] = _typeName;
+            if (!_typeName.Equals(this.TypeNames[0]))
+            {
+                this.TypeNames.Insert(0, PSReflectionTypeName);
+                this.TypeNames.Insert(0, _typeName);
+            }
+        }
+
+        public override PSObject Copy()
+        {
+            return new PSMethodInfoObject(this.ReflectionObject, this.ParentType!);
         }
 
         protected override int ReflectionObjectCompareTo(MethodInfo thisObj, MethodInfo other, PSMethodInfoObject otherParent)
