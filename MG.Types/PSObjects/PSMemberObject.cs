@@ -9,7 +9,7 @@ namespace MG.Types.PSObjects
 {
     internal static class PSMemberObject
     {
-
+        internal const string TypeName = "PSMemberObject";
     }
 }
 

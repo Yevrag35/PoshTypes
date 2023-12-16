@@ -1,31 +1,28 @@
 using MG.Types.Attributes;
 using MG.Types.Extensions;
 using MG.Types.PSObjects;
+using MG.Types.Statics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MG.Types.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "PSType", DefaultParameterSetName = WITH_TYPE)]
+    [Cmdlet(VerbsCommon.Get, "PSType", DefaultParameterSetName = PSConstants.WITH_TYPE)]
     [Alias("Get-Type")]
-    public sealed class GetTypeCmdlet : PSCmdlet
+    public sealed class GetTypeCmdlet : TypeCmdletBase
     {
-        const string FROM_PIPE = "FromPipeline";
-        const string WITH_TYPE = "WithType";
         HashSet<Type> _types = null!;
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = FROM_PIPE)]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [AllowEmptyCollection]
         [AllowEmptyString]
         [ValidateNotNull]
         [RawObjectTransform]
         public object InputObject { get; set; } = null!;
 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = WITH_TYPE)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.WITH_TYPE)]
         [ArgumentToTypeTransform]
         [ValidateNotNull]
         public Type Type { get; set; } = null!;
@@ -43,7 +40,10 @@ namespace MG.Types.Cmdlets
 
         protected override void ProcessRecord()
         {
-            Type type = this.IsFromPipe() ? this.InputObject.GetType() : this.Type;
+            Type type = PSConstants.IsFromPipeline(this)
+                ? this.InputObject.GetType()
+                : this.Type;
+
             if (this.Interfaces)
             {
                 if (!_types.Add(type))
@@ -62,11 +62,6 @@ namespace MG.Types.Cmdlets
             {
                 this.WriteObject(new PSClassObject(type));
             }
-        }
-
-        private bool IsFromPipe()
-        {
-            return FROM_PIPE == this.ParameterSetName;
         }
     }
 }

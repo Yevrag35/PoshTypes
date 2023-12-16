@@ -1,5 +1,6 @@
 using MG.Types.Attributes;
 using MG.Types.PSObjects;
+using MG.Types.Statics;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -11,28 +12,26 @@ using System.Threading.Tasks;
 
 namespace MG.Types.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "PSMethod", DefaultParameterSetName = FROM_PIPE)]
+    [Cmdlet(VerbsCommon.Get, "PSMethod", DefaultParameterSetName = PSConstants.FROM_PIPELINE)]
     [Alias("Get-Method")]
-    public sealed class GetMethodCmdlet : PSCmdlet
+    public sealed class GetMethodCmdlet : TypeCmdletBase
     {
-        const string FROM_PIPE = "FromPipeline";
-        const string WITH_TYPE = "WithType";
         HashSet<Type> _types = null!;
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = FROM_PIPE)]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = PSConstants.FROM_PIPELINE)]
         [AllowEmptyCollection]
         [AllowEmptyString]
         [ValidateNotNull]
         [RawObjectTransform]
         public object InputObject { get; set; } = null!;
 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = WITH_TYPE)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.WITH_TYPE)]
         [ArgumentToTypeTransform]
         [ValidateNotNull]
         public Type Type { get; set; } = null!;
 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = FROM_PIPE)]
-        [Parameter(Mandatory = true, Position = 1, ParameterSetName = WITH_TYPE)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.FROM_PIPELINE)]
+        [Parameter(Mandatory = true, Position = 1, ParameterSetName = PSConstants.WITH_TYPE)]
         [ValidateNotNullOrWhiteSpace]
         [SupportsWildcards]
         public string[] Name { get; set; } = null!;
@@ -43,7 +42,15 @@ namespace MG.Types.Cmdlets
         }
         protected override void ProcessRecord()
         {
-            Type type = this.IsFromPipe() ? GetTypeFromObject(this.InputObject) : this.Type;
+            Type type = PSConstants.IsFromPipeline(this)
+                ? GetTypeFromObject(this.InputObject)
+                : this.Type;
+
+            if (!_types.Add(type))
+            {
+                return;
+            }
+
             foreach (MethodInfo mi in GetMethods(type, BindingFlags.Public | BindingFlags.Instance, this.Name))
             {
                 this.WriteObject(new PSMethodInfoObject(mi, type));
@@ -72,40 +79,6 @@ namespace MG.Types.Cmdlets
             }
 
             ArrayPool<WildcardPattern>.Shared.Return(patterns);
-        }
-
-        private static Type GetTypeFromObject(object inputObject)
-        {
-            switch (inputObject)
-            {
-                case PSClassObject psc:
-                    return psc.ReflectionObject;
-
-                case PSInterfaceObject psi:
-                    return psi.ReflectionObject;
-
-                case PSMethodInfoObject psmi:
-                    return GetTypeFromMember(psmi);
-
-                case PSPropertyInfoObject pspi:
-                    return GetTypeFromMember(pspi);
-
-                case Type type:
-                    return type;
-
-                default:
-                    return inputObject.GetType();
-            }
-        }
-
-        private static Type GetTypeFromMember<T, TSelf>(PSReflectionObject<T, TSelf> refObj) where T : MemberInfo where TSelf : PSReflectionObject<T, TSelf>
-        {
-            return refObj.ParentType ?? refObj.ReflectionObject.DeclaringType ?? refObj.ReflectionObject.ReflectedType ?? typeof(object);
-        }
-
-        private bool IsFromPipe()
-        {
-            return FROM_PIPE == this.ParameterSetName;
         }
     }
 }

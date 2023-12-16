@@ -45,6 +45,7 @@
 	  <None Remove="Debug.ps1" />
 	  <None Remove="PSFormats\PSInterfaceObject.ps1xml" />
 	  <None Remove="PSFormats\PSMethodInfoObject.ps1xml" />
+	  <None Remove="PSFormats\PSPropertyObject.Format.ps1xml" />
 	  <None Remove="PSFormats\PSTypeObject.ps1xml" />
 	  <None Remove="PSTypes\PSReflectionObject.Type.ps1xml" />
 	</ItemGroup>
@@ -63,6 +64,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="PSFormats\PSInterfaceObject.ps1xml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="PSFormats\PSPropertyObject.Format.ps1xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>

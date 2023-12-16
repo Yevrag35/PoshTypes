@@ -4,41 +4,31 @@
 		<View>
 			<Name>PropertyList</Name>
 			<ViewSelectedBy>
-				<TypeName>MG.Types.PSObjects.PSClassObject</TypeName>
+				<TypeName>PSMemberObject</TypeName>
 			</ViewSelectedBy>
 			<GroupBy>
 				<ScriptBlock>$_.ParentType.ToString()</ScriptBlock>
-				<Label>ParentType</Label>
+				<Label>ImplementingType</Label>
 			</GroupBy>
 			<TableControl>
 				<TableHeaders>
 					<TableColumnHeader>
 						<Alignment>Center</Alignment>
 					</TableColumnHeader>
-					<TableColumnHeader>
-						<Alignment>Center</Alignment>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Alignment>Center</Alignment>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Alignment>Left</Alignment>
-					</TableColumnHeader>
+					<TableColumnHeader></TableColumnHeader>
+					<TableColumnHeader></TableColumnHeader>
 				</TableHeaders>
 				<TableRowEntries>
 					<TableRowEntry>
 						<TableColumnItems>
 							<TableColumnItem>
-								<PropertyName>IsPublic</PropertyName>
+								<PropertyName>AccessModifier</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
-								<PropertyName>IsClass</PropertyName>
+								<PropertyName>Name</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
-								<PropertyName>IsInterface</PropertyName>
-							</TableColumnItem>
-							<TableColumnItem>
-								<PropertyName>PSName</PropertyName>
+								<PropertyName>Type</PropertyName>
 							</TableColumnItem>
 						</TableColumnItems>
 					</TableRowEntry>

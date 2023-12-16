@@ -12,12 +12,46 @@
 		</Members>
 	</Type>
 	<Type>
+		<Name>MG.Types.PSTypeBase</Name>
+		<Members>
+			<ScriptProperty>
+				<Name>PSName</Name>
+				<GetScriptBlock>
+					$this.psobject.PSName
+				</GetScriptBlock>
+			</ScriptProperty>
+			<ScriptProperty>
+				<Name>IsStatic</Name>
+				<GetScriptBlock>
+					$this.IsSealed -and $this.IsAbstract
+				</GetScriptBlock>
+			</ScriptProperty>
+		</Members>
+	</Type>
+	<Type>
 		<Name>MG.Types.PSObjects.PSMethodInfoObject</Name>
 		<Members>
 			<ScriptProperty>
 				<Name>Definition</Name>
 				<GetScriptBlock>
 					$this.psobject.AsString
+				</GetScriptBlock>
+			</ScriptProperty>
+		</Members>
+	</Type>
+	<Type>
+		<Name>PSMemberObject</Name>
+		<Members>
+			<ScriptProperty>
+				<Name>AccessModifier</Name>
+				<GetScriptBlock>
+					$this.psobject.AccessModifier
+				</GetScriptBlock>
+			</ScriptProperty>
+			<ScriptProperty>
+				<Name>Type</Name>
+				<GetScriptBlock>
+					$this.psobject.Type
 				</GetScriptBlock>
 			</ScriptProperty>
 		</Members>

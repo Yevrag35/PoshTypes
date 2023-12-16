@@ -1,3 +1,4 @@
+using MG.Types.Components;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
