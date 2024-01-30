@@ -1,4 +1,5 @@
 using MG.Types.Attributes;
+using MG.Types.Completers;
 using MG.Types.PSObjects;
 using MG.Types.Statics;
 using System;
@@ -26,6 +27,7 @@ namespace MG.Types.Cmdlets
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.WITH_TYPE)]
         [ArgumentToTypeTransform]
         [ValidateNotNull]
+        [ArgumentCompleter(typeof(TypeCompleter))]
         public Type Type { get; set; } = null!;
 
         [Parameter(Mandatory = false, Position = 0, ParameterSetName = PSConstants.FROM_PIPELINE)]

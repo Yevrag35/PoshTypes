@@ -1,4 +1,5 @@
 using MG.Types.Attributes;
+using MG.Types.Completers;
 using MG.Types.Extensions;
 using MG.Types.PSObjects;
 using MG.Types.Statics;
@@ -26,10 +27,8 @@ namespace MG.Types.Cmdlets
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = PSConstants.WITH_TYPE)]
         [ArgumentToTypeTransform]
         [ValidateNotNull]
+        [ArgumentCompleter(typeof(TypeCompleter))]
         public Type Type { get; set; } = null!;
-
-        [Parameter]
-        public SwitchParameter Full { get; set; }
 
         [Parameter]
         public SwitchParameter Interfaces { get; set; }
